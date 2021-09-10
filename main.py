@@ -8,9 +8,9 @@ import sys
 import postbin
 from dotenv import load_dotenv
 load_dotenv
-os.chdir('C:\\Users\\justi\\OneDrive\\Documents\\Acrylic')
+os.chdir('C:\\Users\\justi\\Onedrive\\Documents\\Acrylic-old')
 bot = commands.Bot(command_prefix="a'", intents = discord.Intents.all())
-
+TOKEN = open('TOKEN.txt').read()
 
 bot.help_command = None
 
@@ -152,4 +152,4 @@ for cog in os.listdir('./cogs'):
 
 bot.loop.create_task(initialise())
 
-bot.run(os.environ.get('TOKEN'))
+bot.run(TOKEN)
