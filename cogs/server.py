@@ -393,52 +393,7 @@ class Server(commands.Cog):
 
 
 
-    @commands.Cog.listener()
-    async def on_member_join(self, member):
-        c = await self.bot.servers.execute('SELECT welcome FROM systems WHERE guild_id = :guild_id', {'guild_id':member.guild.id})
-        data = await c.fetchone()
-        welcome = data[0]
-        if welcome == 1:
 
-            role = discord.utils.get(member.guild.roles, name = 'Testers') # Sample for now
-            welcome_channel = discord.utils.get(member.guild.channels, name = 'welcomes')# Another sample
-            await member.add_roles(role)
-            try:
-                await welcome_channel.send('Welcome {}'.format(member.mention))
-            except AttributeError:
-                await member.guild.system_channel.send('Welcome {}.'.format(member.mention))
-            else:
-                return
-        else:
-            print(welcome)
-            print('No access.')
-            return
-
-
-
-
-
-
-
-
-
-
-    @commands.Cog.listener()
-    async def on_member_leave(self, member):
-        c = await self.bot.servers.execute('SELECT welcome FROM systems WHERE guild_id = :guild_id', {'guild_id':member.guild.id})
-        data = await c.fetchone()
-        welcome = data[0]
-        if welcome == 1:
-            leave_channel = discord.utils.get(member.guild.channels, name = 'leaves')
-            
-            try:
-                await leave_channel.send('{} has left the server.'.format(member.mention))
-            except AttributeError:
-                await member.guild.system_channel.send('{} has left the server.'.format(member.mention))
-            else:
-                return
-        else:
-            return
 
 
 

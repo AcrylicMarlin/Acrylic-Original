@@ -28,6 +28,11 @@ async def initialise():
         if data is None:
             await bot.servers.execute('INSERT INTO systems VALUES (:guild_id, 1, 1, 1, 1, 1, 1)', {'guild_id':guild.id})
 
+        c = await bot.servers.execute('SELECT * FROM config WHERE guild_id = :guild_id', {'guild_id':guild.id})
+        data = await c.fetchone()
+        if data is None:
+            await bot.servers.execute("INSERT INTO config VALUES (:guild_id, 'null', 'null', 'null')", {'guild_id':guild.id})
+
     
 
     
@@ -35,7 +40,6 @@ async def initialise():
     
     
     
-
 
 
 
@@ -47,28 +51,29 @@ I am connected to {} servers.'''.format(bot.user.name, len(bot.guilds)))
 
 @bot.event
 async def on_command_error(ctx, error):
-    if hasattr(ctx.command, 'on_error'):
-        return
-    if isinstance(error, commands.CommandNotFound):
-        await ctx.send('{} does not exist as a command.'.format(ctx.message.content))
-        return
-    if isinstance(error, commands.MemberNotFound):
-        await ctx.send('Member does not exist in this server.')
-        return
-    if isinstance(error, commands.RoleNotFound):
-        await ctx.send('This role does not exist in this server.')
-        return
-    if isinstance(error, commands.CommandOnCooldown):
-        await ctx.send(error, delete_after = 3.0)
-        return
-    if isinstance(error, commands.MissingRequiredArgument):
-        await ctx.send('You are missing something in this command.')
-        return
-    if isinstance(error, commands.CommandInvokeError):
-        error = getattr(error, 'original', error)
-        if isinstance(error, AttributeError):
-            await ctx.send('You forgot something in this command.')
-            return
+    # if hasattr(ctx.command, 'on_error'):
+    #     return
+    # if isinstance(error, commands.CommandNotFound):
+    #     await ctx.send('{} does not exist as a command.'.format(ctx.message.content))
+    #     return
+    # if isinstance(error, commands.MemberNotFound):
+    #     await ctx.send('Member does not exist in this server.')
+    #     return
+    # if isinstance(error, commands.RoleNotFound):
+    #     await ctx.send('This role does not exist in this server.')
+    #     return
+    # if isinstance(error, commands.CommandOnCooldown):
+    #     await ctx.send(error, delete_after = 3.0)
+    #     return
+    # if isinstance(error, commands.MissingRequiredArgument):
+    #     await ctx.send('You are missing something in this command.')
+    #     return
+    # if isinstance(error, commands.CommandInvokeError):
+    #     error = getattr(error, 'original', error)
+    #     if isinstance(error, AttributeError):
+    #         await ctx.send('You forgot something in this command.')
+    #         traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+    #         return
     traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
 
    
