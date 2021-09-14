@@ -144,7 +144,13 @@ class welcomeLeave(commands.Cog):
         
         else:
             pass
+    
 
+
+
+
+
+    
 
 
 

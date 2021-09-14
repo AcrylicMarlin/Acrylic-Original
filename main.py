@@ -9,7 +9,8 @@ import postbin
 from dotenv import load_dotenv
 load_dotenv
 os.chdir('C:\\Users\\justi\\Onedrive\\Documents\\Acrylic-old')
-bot = commands.Bot(command_prefix="a'", intents = discord.Intents.all())
+activity = discord.Activity(type=discord.ActivityType.listening, name="a'help")
+bot = commands.Bot(command_prefix="a'", intents = discord.Intents.all(), )
 TOKEN = open('TOKEN.txt').read()
 
 bot.help_command = None
@@ -33,7 +34,7 @@ async def initialise():
         if data is None:
             await bot.servers.execute("INSERT INTO config VALUES (:guild_id, 'null', 'null', 'null')", {'guild_id':guild.id})
 
-    
+    await bot.change_presence(activity=activity)
 
     
     
@@ -51,29 +52,32 @@ I am connected to {} servers.'''.format(bot.user.name, len(bot.guilds)))
 
 @bot.event
 async def on_command_error(ctx, error):
-    # if hasattr(ctx.command, 'on_error'):
-    #     return
-    # if isinstance(error, commands.CommandNotFound):
-    #     await ctx.send('{} does not exist as a command.'.format(ctx.message.content))
-    #     return
-    # if isinstance(error, commands.MemberNotFound):
-    #     await ctx.send('Member does not exist in this server.')
-    #     return
-    # if isinstance(error, commands.RoleNotFound):
-    #     await ctx.send('This role does not exist in this server.')
-    #     return
-    # if isinstance(error, commands.CommandOnCooldown):
-    #     await ctx.send(error, delete_after = 3.0)
-    #     return
-    # if isinstance(error, commands.MissingRequiredArgument):
-    #     await ctx.send('You are missing something in this command.')
-    #     return
-    # if isinstance(error, commands.CommandInvokeError):
-    #     error = getattr(error, 'original', error)
-    #     if isinstance(error, AttributeError):
-    #         await ctx.send('You forgot something in this command.')
-    #         traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
-    #         return
+    if hasattr(ctx.command, 'on_error'):
+        return
+    if isinstance(error, commands.CommandNotFound):
+        await ctx.send('{} does not exist as a command.'.format(ctx.message.content))
+        return
+    if isinstance(error, commands.MemberNotFound):
+        await ctx.send('Member does not exist in this server.')
+        return
+    if isinstance(error, commands.RoleNotFound):
+        await ctx.send('This role does not exist in this server.')
+        return
+    if isinstance(error, commands.CommandOnCooldown):
+        await ctx.send(error, delete_after = 3.0)
+        return
+    if isinstance(error, commands.MissingRequiredArgument):
+        await ctx.send('You are missing something in this command.')
+        return
+    if isinstance(error, commands.CommandInvokeError):
+        error = getattr(error, 'original', error)
+        if isinstance(error, AttributeError):
+            await ctx.send('You forgot something in this command.')
+            traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+            return
+    if isinstance(error, discord.errors.Forbidden):
+        await ctx.send("You don't have the permissions required to use this command.")
+        return
     traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
 
    
@@ -81,32 +85,7 @@ async def on_command_error(ctx, error):
 
 @bot.command(hidden = True)
 async def test(ctx):
-    em = discord.Embed(
-            title = 'This is the help panel for my commands.',
-            description= '''
-            This is a list of all my categories. Select a button to go to that category's list of commands.
-            *(These panels change depending on which systems you have enabled. If you don't know what this means, see Configuration.)*
-            
-            ***Moderation***
-                *All of the moderation commands.*
-
-            ***Server Configuration***
-                *All of the server configuration commands.*
-
-            ***Level***
-                *All of the level commands and how this system works.*
-
-            ***AFK***
-                *All of the afk commands and how this system works.*
-
-            ***Configuration***
-                *All of the configuration commands.*
-            
-            ***Extra Commands***
-                *All of the extra commands.*'''
-            
-        )
-    await ctx.send(embed=em)
+    await ctx.send(int(ctx.author.joined_at.timestamp()))
 
 
 async def db_schema(*tables):

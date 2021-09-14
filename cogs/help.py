@@ -22,21 +22,30 @@ class backAndExitButtons(discord.ui.View):
             (These panels change depending on which systems you have enabled. If you don't know what this means, see Configuration.)
             ***Moderation***
                 *All of the moderation commands.*
+                `a'help Moderation <command>`
 
             ***Server Configuration***
                 *All of the server configuration commands.*
+                `a'help Server <command>`
 
             ***Level***
                 *All of the level commands and how this system works.*
+                `a'help Level`
 
             ***AFK***
                 *All of the afk commands and how this system works.*
+                `a'help Afk
 
             ***Configuration***
                 *All of the configuration commands.*
+                `a'help Configuration <command>`
             
             ***Extra Commands***
-                *All of the extra commands.*'''
+                *All of the extra commands.*
+                `a'help Extra <command>`
+                
+                '''
+                
             
         )
         em.set_footer(text="Use `a'help <category> <command>` to get help for a specific command.")
@@ -345,28 +354,35 @@ class Help(commands.Cog):
         if ctx.invoked_subcommand is None:
 
             em = discord.Embed(
-                title = 'This is the help panel for my commands.',
-                description= '''
-                This is a list of all my categories. Select a button to go to that category's list of commands
-                (These panels change depending on which systems you have enabled. If you don't know what this means, see Configuration.)
-                ***Moderation***
-                    *All of the moderation commands.*
+            title = 'This is the help panel for my commands.',
+            description= '''
+            This is a list of all my categories. Select a button to go to that category's list of commands
+            (These panels change depending on which systems you have enabled. If you don't know what this means, see Configuration.)
+            ***Moderation***
+                *All of the moderation commands.*
+                `a'help Moderation <command>`
 
-                ***Server Configuration***
-                    *All of the server configuration commands.*
+            ***Server Configuration***
+                *All of the server configuration commands.*
+                `a'help Server <command>`
 
-                ***Level***
-                    *All of the level commands and how this system works.*
+            ***Level***
+                *All of the level commands and how this system works.*
+                `a'help Level`
 
-                ***AFK***
-                    *All of the afk commands and how this system works.*
+            ***AFK***
+                *All of the afk commands and how this system works.*
+                `a'help Afk`
 
-                ***Configuration***
-                    *All of the configuration commands.*
-
-                ***Extra Commands***
-                    *All of the extra commands.*'''
-
+            ***Configuration***
+                *All of the configuration commands.*
+                `a'help Configuration <command>`
+            
+            ***Extra Commands***
+                *All of the extra commands.*
+                `a'help Extra <command>`
+                
+                '''
             )
             em.set_footer(text="Use `a'help <category> <command>` to get help for a specific command.")
             await ctx.send(embed=em, view=HelpButtons())
