@@ -1,4 +1,5 @@
 
+from turtle import title
 import discord
 from discord.ext import commands
 import asqlite
@@ -802,7 +803,30 @@ class Help(commands.Cog):
         )
         await ctx.send(embed = em)
     
+    @help.group()
+    async def Info(self, ctx):
+        if ctx.invoked_subcommand is None:
+            em = discord.Embed(
+                title='Information',
+                description='Commands that give useful information'
+            )
+            await ctx.send(embed=em)
+    
+    @Info.command()
+    async def guildinfo(self, ctx):
+        em = discord.Embed(
+            title='Gives Guild Information',
+            description="`a'guildinfo`"
+        )
+        await ctx.send(embed=em)
 
+    @Info.command()
+    async def botinfo(self, ctx):
+        em = discord.Embed(
+            title='Gives Bot Information',
+            description="`a'botinfo`"
+        )
+        await ctx.send(embed=em)
 
 def setup(bot):
     bot.add_cog(Help(bot))

@@ -9,11 +9,12 @@ import postbin
 from dotenv import load_dotenv
 load_dotenv
 os.chdir('C:\\Users\\justi\\Onedrive\\Documents\\Acrylic-old')
-activity = discord.Activity(type=discord.ActivityType.listening, name="a'help")
+
 bot = commands.Bot(command_prefix="a'", intents = discord.Intents.all(), )
 TOKEN = open('TOKEN.txt').read()
 
 bot.help_command = None
+
 
 
 
@@ -34,7 +35,7 @@ async def initialise():
         if data is None:
             await bot.servers.execute("INSERT INTO config VALUES (:guild_id, 'null', 'null', 'null')", {'guild_id':guild.id})
 
-    await bot.change_presence(activity=activity)
+    await bot.change_presence(activity=discord.Streaming(name = 'to {} Users!'.format(len(set(bot.users))), url='https://www.twitch.tv/Acrylic'))
 
     
     

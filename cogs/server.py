@@ -331,7 +331,7 @@ class Server(commands.Cog):
     @commands.cooldown(rate = 1, per = 5.0)
     @commands.has_permissions(manage_messages = True)
     async def purge(self, ctx, amount = 5):
-        if amount < 25:
+        if amount <= 25:
 
             await ctx.message.delete()
             await ctx.channel.purge(limit = amount)

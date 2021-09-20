@@ -54,6 +54,27 @@ class Info(commands.Cog):
             
         )
         await ctx.send(embed=em)
+    
+    @commands.command()
+    async def userinfo(self, ctx, member:discord.Member=None):
+        if member is None:
+            member = ctx.author
+        
+        mappedList = list(map(lambda x: x.mention, member.roles[1:]))
+        roles = ', '.join(list(map(lambda x: x.strip("'"), mappedList)))
+
+        em = discord.Embed(
+            title="{}'s Information",
+            description='''
+            Name: {}
+            Joined Discord <t:{}:R>
+            Joined this server <t:{}:R>
+            Roles:
+            {}
+
+            '''.format(member.display_name, int(member.created_at.timestamp()), int(member.joined_at.timestamp()), roles)
+        )
+        await ctx.send(embed = em)
         
 
 

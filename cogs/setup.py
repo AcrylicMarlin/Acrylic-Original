@@ -25,27 +25,47 @@ class welcomeLeave(commands.Cog):
                 description="Follow the Instructions"
             )
         
-        em.add_field(name = 'Step One:', value='What channel would you like to have welcome/leave notifs? (The channel must be spelled exactly as it is spelled)')
+        em.add_field(name = 'Step One:', value='What channel would you like to have welcome/leave notifs {Input "none" to make one, Input "skip" to move on, Input the name of the channel if it exists}? (The channel must be spelled exactly as it is spelled)')
         await ctx.reply(embed = em)
         def check(m):
             return m.author == ctx.author and m.channel == ctx.channel
         while True:
-
             msg = await self.bot.wait_for('message', check=check)
-            channel = discord.utils.get(ctx.guild.channels, name = msg.content)
-            if channel is None:
-                await msg.reply("This channel doesn't exist, try again.")
-                continue
-            else:
-                
-                async with asqlite.connect('guild_data.db') as conn:
-                    async with conn.cursor() as cur:
-                        await cur.execute('UPDATE config SET WLChannel = :channel WHERE guild_id = :guild_id', {'channel':str(channel), 'guild_id':msg.guild.id})
+            if msg.content == 'none':
+                await ctx.send('Would you like me to make one?')
+                msg = await self.bot.wait_for('message', check=check)
+                if msg.content == 'yes':
+                    await ctx.send('What is the name you would like to give it?')
+                    msg = await self.bot.wait_for('message', check=check)
+                    name = msg.content.replace(' ', '-')
 
-                
-                
-                await msg.reply('Great! Moving to the next step.')                
+                    channel = await ctx.guild.create_text_channel(name = name)
+                    await ctx.send('Channel created as {}'.format(channel.mention))
+                    async with asqlite.connect('guild_data.db') as conn:
+                        async with conn.cursor() as cur:
+                            await cur.execute('UPDATE config SET WLChannel = :channel WHERE guild_id = :guild_id', {'channel':str(channel), 'guild_id':msg.guild.id})
+                    break
+
+            elif msg.content == 'skip':
+                await msg.reply('Moving to next step')
                 break
+            
+            else:
+
+                channel = discord.utils.get(ctx.guild.channels, name = msg.content)
+                if channel is None:
+                    await msg.reply("This channel doesn't exist, try again.")
+                    continue
+                else:
+
+                    async with asqlite.connect('guild_data.db') as conn:
+                        async with conn.cursor() as cur:
+                            await cur.execute('UPDATE config SET WLChannel = :channel WHERE guild_id = :guild_id', {'channel':str(channel), 'guild_id':msg.guild.id})
+
+
+
+                    await msg.reply('Great! Moving to the next step.')                
+                    break
         em1 = discord.Embed(
                 title = 'Welcome Setup',
                 description="Follow the Instructions"
@@ -54,18 +74,23 @@ class welcomeLeave(commands.Cog):
         await ctx.send(embed=em1)
         while True:
             msg = await self.bot.wait_for('message', check=check)
-            role = discord.utils.get(ctx.guild.roles, name = msg.content)
-            if role is None:
-                await msg.reply("This role does not exist, try again.")
-                continue
-            else:
-                async with asqlite.connect('guild_data.db') as conn:
-                    async with conn.cursor() as cur:
-                        await cur.execute('UPDATE config SET memberRole = :role WHERE guild_id = :guild_id', {'role':str(role), 'guild_id':msg.guild.id})
-
-                
+            if msg.content == 'skip':
                 await msg.reply('Great! Welcome Setup is complete. Run this command again if anything changes.')
                 break
+            else:
+
+                role = discord.utils.get(ctx.guild.roles, name = msg.content)
+                if role is None:
+                    await msg.reply("This role does not exist, try again.")
+                    continue
+                else:
+                    async with asqlite.connect('guild_data.db') as conn:
+                        async with conn.cursor() as cur:
+                            await cur.execute('UPDATE config SET memberRole = :role WHERE guild_id = :guild_id', {'role':str(role), 'guild_id':msg.guild.id})
+
+
+                    await msg.reply('Great! Welcome Setup is complete. Run this command again if anything changes.')
+                    break
 
 
 
