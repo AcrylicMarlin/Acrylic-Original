@@ -1,22 +1,21 @@
-
-from turtle import title
-import discord
-from discord.ext import commands
+import disnake
+from disnake.ext import commands
 import asqlite
-class backAndExitButtons(discord.ui.View):
+
+class backAndExitButtons(disnake.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
 
 
     
     
-    @discord.ui.button(
+    @disnake.ui.button(
         label='Return',
-        style=discord.ButtonStyle.primary,
+        style=disnake.ButtonStyle.primary,
         custom_id='backAndExitButtons:return'
     )
-    async def _return(self, button:discord.ui.Button, interaction:discord.Interaction):
-        em = discord.Embed(
+    async def _return(self, button:disnake.ui.Button, interaction:disnake.Interaction):
+        em = disnake.Embed(
             title = 'This is the help panel for my commands.',
             description= '''
             This is a list of all my categories. Select a button to go to that category's list of commands
@@ -35,7 +34,7 @@ class backAndExitButtons(discord.ui.View):
 
             ***AFK***
                 *All of the afk commands and how this system works.*
-                `a'help Afk
+                `a'help Afk`
 
             ***Configuration***
                 *All of the configuration commands.*
@@ -52,12 +51,12 @@ class backAndExitButtons(discord.ui.View):
         em.set_footer(text="Use `a'help <category> <command>` to get help for a specific command.")
         await interaction.response.edit_message(embed = em, view=HelpButtons())
 
-    @discord.ui.button(
+    @disnake.ui.button(
         label='Exit',
-        style=discord.ButtonStyle.danger,
+        style=disnake.ButtonStyle.danger,
         custom_id='backAndExitButtons:exit'
     )
-    async def exit(self, button:discord.ui.Button, interaction:discord.Interaction):
+    async def exit(self, button:disnake.ui.Button, interaction:disnake.Interaction):
         msg = interaction.message
         await msg.delete()
 
@@ -79,17 +78,17 @@ class backAndExitButtons(discord.ui.View):
 
 
 
-class HelpButtons(discord.ui.View):
+class HelpButtons(disnake.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
 
-    @discord.ui.button(
+    @disnake.ui.button(
         label='Configuration',
-        style=discord.ButtonStyle.primary,
+        style=disnake.ButtonStyle.primary,
         custom_id='HelpButtons:Configuration'
     )
-    async def config(self, button:discord.ui.Button, interaction:discord.Interaction):
-        config = discord.Embed(
+    async def config(self, button:disnake.ui.Button, interaction:disnake.Interaction):
+        config = disnake.Embed(
             title='Configuration Help',
             description='This is the help page for the configuration commands.'
         )
@@ -102,12 +101,12 @@ class HelpButtons(discord.ui.View):
 
 
 
-    @discord.ui.button(
+    @disnake.ui.button(
         label = 'AFK',
-        style = discord.ButtonStyle.primary,
+        style = disnake.ButtonStyle.primary,
         custom_id = 'AFKHelpButtons:AFK'
     )
-    async def AFK(self, button:discord.ui.Button, interaction:discord.Interaction):
+    async def AFK(self, button:disnake.ui.Button, interaction:disnake.Interaction):
         async with asqlite.connect('guild_data.db') as conn:
             async with conn.cursor() as cur:
                 c = await cur.execute('SELECT afk FROM systems WHERE guild_id = :guild_id', {'guild_id':interaction.message.guild.id})
@@ -115,7 +114,7 @@ class HelpButtons(discord.ui.View):
                 en = data[0]
                 if en == 1:
 
-                    afk = discord.Embed(
+                    afk = disnake.Embed(
                         title='Afk help',
                         description='This system stores the afk for whatever reason you want.\nWhen you are pinged, I reply that you are afk for whatever reason since whatever time.\nOnce you speak, it removes the afk.\nYour afk is universal between servers I am in.'
 
@@ -124,7 +123,7 @@ class HelpButtons(discord.ui.View):
                     
                     await interaction.response.edit_message(embed=afk, view=backAndExitButtons())
                 else:
-                    afk = discord.Embed(
+                    afk =disnake.Embed(
                         title='**Afk help**',
                         description="***I'm sorry to inform you of this, but this system is disable for your system.***"
 
@@ -134,19 +133,19 @@ class HelpButtons(discord.ui.View):
 
 
 
-    @discord.ui.button(
+    @disnake.ui.button(
         label = 'Server',
-        style = discord.ButtonStyle.primary,
+        style = disnake.ButtonStyle.primary,
         custom_id='HelpButtons:server'
     )
-    async def server(self, button:discord.ui.Button, interaction:discord.Interaction):
+    async def server(self, button:disnake.ui.Button, interaction:disnake.Interaction):
         async with asqlite.connect('guild_data.db') as conn:
             async with conn.cursor() as cur:
                 c = await cur.execute('SELECT server FROM systems WHERE guild_id = :guild_id',{'guild_id':interaction.message.guild.id})
                 data = await c.fetchone()
                 server = data[0]
                 if server == 1:
-                    em = discord.Embed(
+                    em = disnake.Embed(
                         title='Server Configuration Help',
                         description='This is the help panel for all of the server configuration commands and how to use them.'
                     )
@@ -162,7 +161,7 @@ class HelpButtons(discord.ui.View):
                     em.add_field(name = "Purge (`a'purge <amount (Defaults at 5)>`)", value='Clears messages from the channel it is used in.', inline=False)
                     await interaction.response.edit_message(embed=em, view=backAndExitButtons())
                 else:
-                    em = discord.Embed(
+                    em = disnake.Embed(
                         title='Server Configuration Help',
                         description='This is the help panel for all of the server configuration commands and how to use them.'
                     )
@@ -170,12 +169,12 @@ class HelpButtons(discord.ui.View):
                     await interaction.response.edit_message(embed=em, view=backAndExitButtons())
 
 
-    @discord.ui.button(
+    @disnake.ui.button(
         label='Moderation',
-        style=discord.ButtonStyle.primary,
+        style=disnake.ButtonStyle.primary,
         custom_id='HelpButtons:moderation'
     )    
-    async def moderation(self, button:discord.ui.Button, interaction:discord.Interaction):
+    async def moderation(self, button:disnake.ui.Button, interaction:disnake.Interaction):
         async with asqlite.connect('guild_data.db') as conn:
             async with conn.cursor() as cur:
                 c = await cur.execute('SELECT warn, mute FROM systems WHERE guild_id = :guild_id',{'guild_id':interaction.message.guild.id})
@@ -183,7 +182,7 @@ class HelpButtons(discord.ui.View):
                 warn, mute = data
                 if warn == 1 and mute == 1:
 
-                    em = discord.Embed(
+                    em = disnake.Embed(
                         title='Moderation Help Panel',
                         description='This is the panel for all moderation commands and how to use them.'
                     )
@@ -213,7 +212,7 @@ class HelpButtons(discord.ui.View):
                     await interaction.response.edit_message(embed=em, view=backAndExitButtons())
 
                 if mute == 1 and warn != 1:
-                    em = discord.Embed(
+                    em = disnake.Embed(
                         title='Moderation Help Panel',
                         description='This is the panel for all moderation commands and how to use them.'
                     )
@@ -227,7 +226,7 @@ class HelpButtons(discord.ui.View):
                     await interaction.response.edit_message(embed = em, view = backAndExitButtons())
                 
                 if mute != 1 and warn == 1:
-                    em = discord.Embed(
+                    em = disnake.Embed(
                         title='Moderation Help Panel',
                         description='This is the panel for all moderation commands and how to use them.'
                     )
@@ -241,7 +240,7 @@ class HelpButtons(discord.ui.View):
                     em.set_footer(text='The mute system has been disabled by your admins.')
                     await interaction.response.edit_message(embed = em, view = backAndExitButtons())
                 if mute != 1 and warn != 1:
-                    em = discord.Embed(
+                    em = disnake.Embed(
                         title='Moderation Help Panel',
                         description='This is the panel for all moderation commands and how to use them.'
                     )
@@ -266,19 +265,19 @@ class HelpButtons(discord.ui.View):
 
 
 
-    @discord.ui.button(
+    @disnake.ui.button(
         label = 'Level',
-        style= discord.ButtonStyle.primary,
+        style= disnake.ButtonStyle.primary,
         custom_id='HelpButtons:level'
     )
-    async def level(self, button:discord.ui.Button, interaction:discord.Interaction):
+    async def level(self, button:disnake.ui.Button, interaction:disnake.Interaction):
         async with asqlite.connect('guild_data.db') as conn:
             async with conn.cursor() as cur:
                 c = await cur.execute('SELECT level FROM systems WHERE guild_id = :guild_id', {'guild_id':interaction.message.guild.id})
                 data = await c.fetchone()
                 lvl = data[0]
                 if lvl == 1:
-                    em = discord.Embed(
+                    em = disnake.Embed(
                         title='Leveling Help Panel',
                         description='This is the help panel for the level commands and their usage.\nThis is not universal between servers. Everytime you send a message 2 exp is added.'
                     )
@@ -288,7 +287,7 @@ class HelpButtons(discord.ui.View):
                     )
                     await interaction.response.edit_message(embed=em, view=backAndExitButtons())
                 else:
-                    em = discord.Embed(
+                    em = disnake.Embed(
                         title='Leveling Help Panel',
                         description='This is the help panel for the level commands and their usage.'
                     )
@@ -298,13 +297,13 @@ class HelpButtons(discord.ui.View):
                     ) 
                     await interaction.response.edit_message(embed=em, view=backAndExitButtons())
 
-    @discord.ui.button(
+    @disnake.ui.button(
         label= 'Extra',
-        style=discord.ButtonStyle.primary,
+        style=disnake.ButtonStyle.primary,
         custom_id='HelpButtons:extra'
     )
-    async def extra(self, button:discord.ui.Button, interaction:discord.Interaction):
-        em = discord.Embed(
+    async def extra(self, button:disnake.ui.Button, interaction:disnake.Interaction):
+        em = disnake.Embed(
             title='Extra Commands',
             description='Couple of extra fun commands.'
         )
@@ -315,12 +314,12 @@ class HelpButtons(discord.ui.View):
 
 
 
-    @discord.ui.button(
+    @disnake.ui.button(
         label = 'Exit',
-        style=discord.ButtonStyle.danger,
+        style=disnake.ButtonStyle.danger,
         custom_id='HelpButtons:exit'
     )
-    async def exit(self, button:discord.ui.Button, interaction:discord.Interaction):
+    async def exit(self, button:disnake.ui.Button, interaction:disnake.Interaction):
         msg = interaction.message
         await msg.delete()
 
@@ -352,9 +351,12 @@ class Help(commands.Cog):
     @commands.group()
     async def help(self, ctx):
         
+        
         if ctx.invoked_subcommand is None:
+            self.bot.add_view(backAndExitButtons())
+            self.bot.add_view(HelpButtons())
 
-            em = discord.Embed(
+            em = disnake.Embed(
             title = 'This is the help panel for my commands.',
             description= '''
             This is a list of all my categories. Select a button to go to that category's list of commands
@@ -392,7 +394,7 @@ class Help(commands.Cog):
     @help.command()
     async def Afk(self, ctx):
         if ctx.invoked_subcommand is None:
-            afk = discord.Embed(
+            afk = disnake.Embed(
                     title='Afk help',
                     description='This system stores the afk for whatever reason you want.\nWhen you are pinged, I reply that you are afk for whatever reason since whatever time.\nOnce you speak, it removes the afk.\nYour afk is universal between servers I am in.'
                 )
@@ -402,7 +404,7 @@ class Help(commands.Cog):
     @help.group()
     async def Configuration(self,ctx):
         if ctx.invoked_subcommand is None:
-            config = discord.Embed(
+            config = disnake.Embed(
             title='Configuration Help',
             description='These commands are for showing and configuring the systems you would like to use in the server.'
         )
@@ -410,7 +412,7 @@ class Help(commands.Cog):
 
     @Configuration.command()
     async def el(self, ctx):
-        em = discord.Embed(
+        em = disnake.Embed(
             title='Enabled List',
             description="`a'el`. Shows a list of all systems and whether they are Online."
         )
@@ -418,7 +420,7 @@ class Help(commands.Cog):
     
     @Configuration.command()
     async def config(self, ctx):
-        em = discord.Embed(
+        em = disnake.Embed(
             title='Configuration Panel',
             description="`a'config`. Brings up a panel to enabled and disable systems for this server."
         )
@@ -429,7 +431,7 @@ class Help(commands.Cog):
     @help.group()
     async def Server(self, ctx):
         if ctx.invoked_subcommand is None:
-            em = discord.Embed(
+            em = disnake.Embed(
                     title='Server Configuration Help',
                     description='This Category has all the commands meant for configuring the server in different ways.'
                 )
@@ -446,7 +448,7 @@ class Help(commands.Cog):
     a'remove_server_role <role>'''
     @Server.command()
     async def acat(self, ctx):
-        emb = discord.Embed(
+        emb = disnake.Embed(
                     title='Add Category',
                     description='Adds a category to this server.'
                 )
@@ -454,7 +456,7 @@ class Help(commands.Cog):
         await ctx.send(embed = emb)
     @Server.command()
     async def add_category(self, ctx):
-        em = discord.Embed(
+        em = disnake.Embed(
                     title='Add Category',
                     description='Adds a category to this server.'
                 )
@@ -465,7 +467,7 @@ class Help(commands.Cog):
     async def add_channel(self, ctx):
         
 
-        em = discord.Embed(
+        em = disnake.Embed(
                     title='Add Channel',
                     description="Adds a channel to this server. When using, remember that the channel name must have dashes between words. For example: a'ac new-channel-example.\nWhen adding a channel, if it goes under a category do channel-name, category name. Example: a'ac channel-name-example, category name example (comma and space must be used)"
                 )
@@ -479,7 +481,7 @@ class Help(commands.Cog):
     async def ac(self, ctx):
         
 
-        em = discord.Embed(
+        em = disnake.Embed(
                     title='Add Channel',
                     description="Adds a channel to this server. When using, remember that the channel name must have dashes between words. For example: a'ac new-channel-example.\nWhen adding a channel, if it goes under a category do channel-name, category name. Example: a'ac channel-name-example, category name example (comma and space must be used)"
                 )
@@ -490,7 +492,7 @@ class Help(commands.Cog):
     async def delete_channel(self, ctx):
         
 
-        em = discord.Embed(
+        em = disnake.Embed(
                     title='Delete Channel',
                     description="Removes a channel from this server. When using, remember that the channel name must have dashes between words. For example: a'ac new-channel-example."
                 )
@@ -504,7 +506,7 @@ class Help(commands.Cog):
     async def dc(self, ctx):
         
 
-        em = discord.Embed(
+        em = disnake.Embed(
                     title='Delete Channel',
                     description="Removes a channel from this server. When using, remember that the channel name must have dashes between words. For example: a'ac new-channel-example."
                 )
@@ -515,7 +517,7 @@ class Help(commands.Cog):
     async def delete_category(self, ctx):
         
 
-        em = discord.Embed(
+        em = disnake.Embed(
                     title='Delete Category',
                     description="Removes a category from this server."
                 )
@@ -528,7 +530,7 @@ class Help(commands.Cog):
     async def dcat(self, ctx):
         
 
-        em = discord.Embed(
+        em = disnake.Embed(
                     title='Delete Category',
                     description="Removes a category from this server."
                 )
@@ -539,7 +541,7 @@ class Help(commands.Cog):
     async def add_member_role(self, ctx):
         
 
-        em = discord.Embed(
+        em = disnake.Embed(
                     title='Add Member Role',
                     description="Adds a role to a member. (Must be spelled exactly as it is named. Case-sensitive.)"
                 )
@@ -550,7 +552,7 @@ class Help(commands.Cog):
     async def amr(self, ctx):
         
 
-        em = discord.Embed(
+        em = disnake.Embed(
                     title='Add Member Role',
                     description="Adds a role to a member. (Must be spelled exactly as it is named. Case-sensitive.)"
                 )
@@ -561,7 +563,7 @@ class Help(commands.Cog):
     async def AMR(self, ctx):
         
 
-        em = discord.Embed(
+        em = disnake.Embed(
                     title='Add Member Role',
                     description="Adds a role to a member. (Must be spelled exactly as it is named. Case-sensitive.)"
                 )
@@ -574,7 +576,7 @@ class Help(commands.Cog):
     async def add_server_role(self, ctx):
         
 
-        em = discord.Embed(
+        em = disnake.Embed(
                     title='Add Server Role',
                     description="Adds a role to the server."
                 )
@@ -585,7 +587,7 @@ class Help(commands.Cog):
     async def asr(self, ctx):
         
 
-        em = discord.Embed(
+        em = disnake.Embed(
                     title='Add Server Role',
                     description="Adds a role to the server."
                 )
@@ -598,7 +600,7 @@ class Help(commands.Cog):
     async def ASR(self, ctx):
         
 
-        em = discord.Embed(
+        em = disnake.Embed(
                     title='Add Server Role',
                     description="Adds a role to the server."
                 )
@@ -609,7 +611,7 @@ class Help(commands.Cog):
     async def remove_member_role(self, ctx):
         
 
-        em = discord.Embed(
+        em = disnake.Embed(
                     title='Remove Member Role',
                     description="Removes a role from a member. (Must be spelled exactly. Case-Sensitive)"
                 )
@@ -620,7 +622,7 @@ class Help(commands.Cog):
     async def rmr(self, ctx):
         
 
-        em = discord.Embed(
+        em = disnake.Embed(
                     title='Remove Member Role',
                     description="Removes a role from a member. (Must be spelled exactly. Case-Sensitive)"
                 )
@@ -631,7 +633,7 @@ class Help(commands.Cog):
     async def RSM(self, ctx):
         
 
-        em = discord.Embed(
+        em = disnake.Embed(
                     title='Remove Member Role',
                     description="Removes a role from a member. (Must be spelled exactly. Case-Sensitive)"
                 )
@@ -643,7 +645,7 @@ class Help(commands.Cog):
     async def remove_server_role(self, ctx):
         
 
-        em = discord.Embed(
+        em = disnake.Embed(
                     title='Remove Server Role',
                     description="Removes a role from this server."
                 )
@@ -655,7 +657,7 @@ class Help(commands.Cog):
     async def rsr(self, ctx):
         
 
-        em = discord.Embed(
+        em = disnake.Embed(
                     title='Remove Server Role',
                     description="Removes a role from this server."
                 )
@@ -667,7 +669,7 @@ class Help(commands.Cog):
     async def RSR(self, ctx):
         
 
-        em = discord.Embed(
+        em = disnake.Embed(
                     title='Remove Server Role',
                     description="Removes a role from this server."
                 )
@@ -677,7 +679,7 @@ class Help(commands.Cog):
     
     @Server.command()
     async def purge(self, ctx):
-        em = discord.Embed(
+        em = disnake.Embed(
             title = 'Purge',
             description='Removes messages from the channel it is used in. The default amount is 5.'
         )
@@ -689,7 +691,7 @@ class Help(commands.Cog):
     @help.group()
     async def Moderation(self, ctx):
         if ctx.invoked_subcommand is None:
-            em = discord.Embed(
+            em = disnake.Embed(
                 title='Moderation Category',
                 description='The Moderation category of commands are used for Moderation, such as banning, warning, muting, etc.'
             )
@@ -714,7 +716,7 @@ class Help(commands.Cog):
 
     @Moderation.command()
     async def ban(self, ctx):
-        em = discord.Embed(
+        em = disnake.Embed(
             title = 'Ban',
             description="Bans a user from the server\n(`a'ban <member> <reason>`)"
         )
@@ -723,7 +725,7 @@ class Help(commands.Cog):
     
     @Moderation.command()
     async def unban(self, ctx):
-        em = discord.Embed(
+        em = disnake.Embed(
             title='Unban',
             description="Unbans a member\n(`a'unban`)"
         )
@@ -732,7 +734,7 @@ class Help(commands.Cog):
 
     @Moderation.command()
     async def kick(self, ctx):
-        em = discord.Embed(
+        em = disnake.Embed(
             title = 'Kick',
             description="Kicks a user from the server\n(`a'kick <member> <reason>`)"
         )
@@ -740,7 +742,7 @@ class Help(commands.Cog):
 
     @Moderation.command(aliases = ['cw', 'clearwarns'])
     async def clear_warns(self, ctx):
-        em = discord.Embed(
+        em = disnake.Embed(
             title = 'Clear Warns',
             description="Clears all of a users warns. This is a very sensitive command and you will be prompted before using.]\n (`a'clear_warns <member>`, `a'clearwarns <member>`, `a'cw <member>`)"
         )
@@ -749,7 +751,7 @@ class Help(commands.Cog):
     
     @Moderation.command(aliases = ['dw', 'delwarn', 'deletewarn'])
     async def delete_warn(self, ctx):
-        em = discord.Embed(
+        em = disnake.Embed(
             title = 'Delete Warn',
             description="Delete a warn from a member.\n(`a'delete_warn <member>`, `a'deletewarn <member>`, `a'delwarn <member>`, `a'dw <member>`)"
         )
@@ -757,7 +759,7 @@ class Help(commands.Cog):
 
     @Moderation.command()
     async def warn(self, ctx):
-        em = discord.Embed(
+        em = disnake.Embed(
             title = 'Warn',
             description="Warns a member for your reason.\n(`a'warn <member> <reason>)"
         )
@@ -767,7 +769,7 @@ class Help(commands.Cog):
 
     @Moderation.command(aliases = ['gw', 'getwarns'])
     async def get_warns(self, ctx):
-        em = discord.Embed(
+        em = disnake.Embed(
             title = 'Get Warns',
             description="Gets all of a member's warns.\n(`a'get_warns <member>`, `a'gm <member>`, `a'getwarns <member>`)"
         )
@@ -775,7 +777,7 @@ class Help(commands.Cog):
     
     @Moderation.command()
     async def mute(self, ctx):
-        em = discord.Embed(
+        em = disnake.Embed(
             title = 'Mute',
             description="Mutes a member.\n(`a'mute <member> <reason>`)"
         )
@@ -783,7 +785,7 @@ class Help(commands.Cog):
     
     @Moderation.command()
     async def Unmute(self, ctx):
-        em = discord.Embed(
+        em = disnake.Embed(
             title = 'Unmute',
             description="Unmutes a member.\n(`a'Unmute <member>`)"
         )
@@ -792,7 +794,7 @@ class Help(commands.Cog):
 
     @help.command()
     async def level(self, ctx):
-        em = discord.Embed(
+        em = disnake.Embed(
             title='Level Category and System',
             description='The level system adds every user in your server as they speak. There is only one command.'
 
@@ -806,7 +808,7 @@ class Help(commands.Cog):
     @help.group()
     async def Info(self, ctx):
         if ctx.invoked_subcommand is None:
-            em = discord.Embed(
+            em = disnake.Embed(
                 title='Information',
                 description='Commands that give useful information'
             )
@@ -814,7 +816,7 @@ class Help(commands.Cog):
     
     @Info.command()
     async def guildinfo(self, ctx):
-        em = discord.Embed(
+        em = disnake.Embed(
             title='Gives Guild Information',
             description="`a'guildinfo`"
         )
@@ -822,7 +824,7 @@ class Help(commands.Cog):
 
     @Info.command()
     async def botinfo(self, ctx):
-        em = discord.Embed(
+        em = disnake.Embed(
             title='Gives Bot Information',
             description="`a'botinfo`"
         )

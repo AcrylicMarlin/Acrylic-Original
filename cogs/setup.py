@@ -1,5 +1,5 @@
-import discord
-from discord.ext import commands
+import disnake
+from disnake.ext import commands
 import asqlite
 
 
@@ -20,7 +20,7 @@ class welcomeLeave(commands.Cog):
     @setup.command()
     async def welcome(self, ctx):
         servers = self.bot.servers
-        em = discord.Embed(
+        em = disnake.Embed(
                 title = 'Welcome Setup',
                 description="Follow the Instructions"
             )
@@ -52,7 +52,7 @@ class welcomeLeave(commands.Cog):
             
             else:
 
-                channel = discord.utils.get(ctx.guild.channels, name = msg.content)
+                channel = disnake.utils.get(ctx.guild.channels, name = msg.content)
                 if channel is None:
                     await msg.reply("This channel doesn't exist, try again.")
                     continue
@@ -66,7 +66,7 @@ class welcomeLeave(commands.Cog):
 
                     await msg.reply('Great! Moving to the next step.')                
                     break
-        em1 = discord.Embed(
+        em1 = disnake.Embed(
                 title = 'Welcome Setup',
                 description="Follow the Instructions"
             )
@@ -79,7 +79,7 @@ class welcomeLeave(commands.Cog):
                 break
             else:
 
-                role = discord.utils.get(ctx.guild.roles, name = msg.content)
+                role = disnake.utils.get(ctx.guild.roles, name = msg.content)
                 if role is None:
                     await msg.reply("This role does not exist, try again.")
                     continue
@@ -106,7 +106,7 @@ class welcomeLeave(commands.Cog):
             c = await servers.execute('SELECT WLChannel FROM config WHERE guild_id = :guild_id', {'guild_id': member.guild.id})
             data = await c.fetchone()
             channelName = data[0]
-            channel = discord.utils.get(member.guild.channels, name = channelName)
+            channel = disnake.utils.get(member.guild.channels, name = channelName)
             if channel is None:
                 try:
 
@@ -119,7 +119,7 @@ class welcomeLeave(commands.Cog):
                 c = await servers.execute('SELECT memberRole FROM config WHERE guild_id = :guild_id', {'guild_id':member.guild.id})
                 data = await c.fetchone()
                 roleName = data[0]
-                role = discord.utils.get(member.guild.roles, name = roleName)
+                role = disnake.utils.get(member.guild.roles, name = roleName)
                 if role is None:
                     try:
                         await member.guild.system_channel.send('*No role given because either you did not setup the welcome system or the role name changed and you need to reset it again*')
@@ -132,7 +132,7 @@ class welcomeLeave(commands.Cog):
                 c = await servers.execute('SELECT memberRole FROM config WHERE guild_id = :guild_id', {'guild_id':member.guild.id})
                 data = await c.fetchone()
                 roleName = data[0]
-                role = discord.utils.get(member.guild.roles, name = roleName)
+                role = disnake.utils.get(member.guild.roles, name = roleName)
                 if role is None:
                     try:
                         await member.guild.system_channel.send('*No role given because either you did not setup the welcome system or the role name changed and you need to reset it again*')
@@ -155,7 +155,7 @@ class welcomeLeave(commands.Cog):
             c = await servers.execute('SELECT WLChannel FROM config WHERE guild_id = :guild_id', {'guild_id': member.guild.id})
             data = await c.fetchone()
             channelName = data[0]
-            channel = discord.utils.get(member.guild.channels, name = channelName)
+            channel  = disnake.utils.get(member.guild.channels, name = channelName)
             if channel is None:
                 try:
                     await member.guild.system_channel.send('''{} has left the server. 

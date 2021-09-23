@@ -1,6 +1,6 @@
 import math
-import discord
-from discord.ext import commands
+import disnake
+from disnake.ext import commands
 import asyncio
 
 
@@ -87,7 +87,7 @@ class level(commands.Cog):
         help = 'Stats of yourself.',
         hidden = True
     )
-    async def stats(self, ctx, member:discord.Member=None):
+    async def stats(self, ctx, member:disnake.Member=None):
         servers  = self.bot.servers
         cur = await servers.execute('SELECT level FROM systems WHERE guild_id = :guild_id', {'guild_id':ctx.guild.id})
         data = await cur.fetchone()
@@ -98,7 +98,7 @@ class level(commands.Cog):
                 c = await servers.execute('SELECT exp, level FROM level_data WHERE guild_id = :guild_id AND user_id = :user_id', {'guild_id':ctx.guild.id, 'user_id':ctx.author.id})
                 data = await c.fetchone()
                 xp,lvl=data
-                em = discord.Embed(
+                em = disnake.Embed(
                     title="{}'s Level Stats".format(ctx.author.display_name),
                     )
 
@@ -112,7 +112,7 @@ class level(commands.Cog):
                 c = await servers.execute('SELECT exp, level FROM level_data WHERE guild_id = :guild_id AND user_id = :user_id', {'guild_id':ctx.guild.id, 'user_id':member.id})
                 data = await c.fetchone()
                 xp,lvl=data
-                em = discord.Embed(
+                em = disnake.Embed(
                     title="{}'s Level Stats".format(member.display_name),
                     )
 

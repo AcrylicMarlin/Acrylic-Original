@@ -1,7 +1,7 @@
 import asyncio
 import asqlite
-import discord
-from discord.ext import commands
+import disnake
+from disnake.ext import commands
 
 
 
@@ -19,7 +19,7 @@ async def get_enabled(guild):
             c = await cur.execute('SELECT afk, level, warn, mute, welcome, server FROM systems WHERE guild_id = :guild_id', {'guild_id':guild.id})
             data  = await c.fetchone()
             afk, level, warn, mute, welcome, server = data
-            em = discord.Embed(
+            em = disnake.Embed(
                 title = 'Configuration Menu',
                 description= 'Enable/Disable Systems'
             )
@@ -62,15 +62,15 @@ async def get_enabled(guild):
 
 
 
-class config_buttons(discord.ui.View):
+class config_buttons(disnake.ui.View):
 
 
     def __init__(self):
         super().__init__(timeout=None)
-    configpanel = discord.Embed(title = 'Configuration Panel',
+    configpanel = disnake.Embed(title = 'Configuration Panel',
     description='Configure the servers systems here.')
-    @discord.ui.button(label = 'AFK', style = discord.ButtonStyle.green, custom_id='config_buttons:afk')
-    async def afk(self, button:discord.ui.Button, interaction:discord.Interaction):
+    @disnake.ui.button(label = 'AFK', style = disnake.ButtonStyle.green, custom_id='config_buttons:afk')
+    async def afk(self, button:disnake.ui.Button, interaction:disnake.Interaction):
         async with asqlite.connect('guild_data.db') as conn:
             async with conn.cursor() as cur:
                 c = await cur.execute('SELECT afk FROM systems WHERE guild_id = :guild_id', {'guild_id':interaction.message.guild.id})
@@ -86,8 +86,8 @@ class config_buttons(discord.ui.View):
         await interaction.response.edit_message(embed=await get_enabled(interaction.message.guild))
 
 
-    @discord.ui.button(label = 'Level', style = discord.ButtonStyle.green, custom_id='config_buttons:level')
-    async def level(self, button:discord.ui.Button, interaction:discord.Interaction):
+    @disnake.ui.button(label = 'Level', style = disnake.ButtonStyle.green, custom_id='config_buttons:level')
+    async def level(self, button:disnake.ui.Button, interaction:disnake.Interaction):
         async with asqlite.connect('guild_data.db') as conn:
             async with conn.cursor() as cur:
                 c = await cur.execute('SELECT level FROM systems WHERE guild_id = :guild_id', {'guild_id':interaction.message.guild.id})
@@ -101,8 +101,8 @@ class config_buttons(discord.ui.View):
 
 
 
-    @discord.ui.button(label = 'Warn', style = discord.ButtonStyle.green, custom_id='config_buttons:warn')
-    async def warn(self, button:discord.ui.Button, interaction:discord.Interaction):
+    @disnake.ui.button(label = 'Warn', style = disnake.ButtonStyle.green, custom_id='config_buttons:warn')
+    async def warn(self, button:disnake.ui.Button, interaction:disnake.Interaction):
         async with asqlite.connect('guild_data.db') as conn:
             async with conn.cursor() as cur:
                 c = await cur.execute('SELECT warn FROM systems WHERE guild_id = :guild_id', {'guild_id':interaction.message.guild.id})
@@ -116,8 +116,8 @@ class config_buttons(discord.ui.View):
 
 
 
-    @discord.ui.button(label = 'Mute', style = discord.ButtonStyle.green, custom_id='config_buttons:mute')
-    async def mute(self, button:discord.ui.Button, interaction:discord.Interaction):
+    @disnake.ui.button(label = 'Mute', style = disnake.ButtonStyle.green, custom_id='config_buttons:mute')
+    async def mute(self, button:disnake.ui.Button, interaction:disnake.Interaction):
         async with asqlite.connect('guild_data.db') as conn:
             async with conn.cursor() as cur:
                 c = await cur.execute('SELECT mute FROM systems WHERE guild_id = :guild_id', {'guild_id':interaction.message.guild.id})
@@ -130,8 +130,8 @@ class config_buttons(discord.ui.View):
         await interaction.response.edit_message(embed=await get_enabled(interaction.message.guild))
 
 
-    @discord.ui.button(label = 'Welcome', style = discord.ButtonStyle.green, custom_id='config_buttons:welcome')
-    async def welcome(self, button:discord.ui.Button, interaction:discord.Interaction):
+    @disnake.ui.button(label = 'Welcome', style = disnake.ButtonStyle.green, custom_id='config_buttons:welcome')
+    async def welcome(self, button:disnake.ui.Button, interaction:disnake.Interaction):
         async with asqlite.connect('guild_data.db') as conn:
             async with conn.cursor() as cur:
                 c = await cur.execute('SELECT welcome FROM systems WHERE guild_id = :guild_id', {'guild_id':interaction.message.guild.id})
@@ -144,8 +144,8 @@ class config_buttons(discord.ui.View):
         await interaction.response.edit_message(embed=await get_enabled(interaction.message.guild))
 
 
-    @discord.ui.button(label = 'Server', style = discord.ButtonStyle.green, custom_id='config_buttons:server')
-    async def server(self, button:discord.ui.Button, interaction:discord.Interaction):
+    @disnake.ui.button(label = 'Server', style = disnake.ButtonStyle.green, custom_id='config_buttons:server')
+    async def server(self, button:disnake.ui.Button, interaction:disnake.Interaction):
         async with asqlite.connect('guild_data.db') as conn:
             async with conn.cursor() as cur:
                 c = await cur.execute('SELECT server FROM systems WHERE guild_id = :guild_id', {'guild_id':interaction.message.guild.id})
@@ -160,8 +160,8 @@ class config_buttons(discord.ui.View):
     
 
 
-    @discord.ui.button(label = 'Enable All', style=discord.ButtonStyle.primary, custom_id='config_buttons:enable_all')
-    async def en_all(self, button:discord.ui.Button, interaction:discord.Interaction):
+    @disnake.ui.button(label = 'Enable All', style=disnake.ButtonStyle.primary, custom_id='config_buttons:enable_all')
+    async def en_all(self, button:disnake.ui.Button, interaction:disnake.Interaction):
         async with asqlite.connect('guild_data.db') as conn:
             async with conn.cursor() as cur:
                 c = await cur.execute('SELECT * from systems WHERE guild_id = :guild_id', {'guild_id':interaction.message.guild.id})
@@ -188,8 +188,8 @@ class config_buttons(discord.ui.View):
         await interaction.response.edit_message(embed=await get_enabled(interaction.message.guild))
 
 
-    @discord.ui.button(label = 'Disable All', style=discord.ButtonStyle.primary, custom_id='config_buttons:disable_all')
-    async def dis_all(self, button:discord.ui.Button, interaction:discord.Interaction):
+    @disnake.ui.button(label = 'Disable All', style=disnake.ButtonStyle.primary, custom_id='config_buttons:disable_all')
+    async def dis_all(self, button:disnake.ui.Button, interaction:disnake.Interaction):
         async with asqlite.connect('guild_data.db') as conn:
             async with conn.cursor() as cur:
                 c = await cur.execute('SELECT * from systems WHERE guild_id = :guild_id', {'guild_id':interaction.message.guild.id})
@@ -214,25 +214,25 @@ class config_buttons(discord.ui.View):
                     await cur.execute('UPDATE systems SET server = 0 WHERE guild_id = :guild_id', {'guild_id':interaction.message.guild.id})
 
         await interaction.response.edit_message(embed=await get_enabled(interaction.message.guild))
-    @discord.ui.button(label = 'Exit', style=discord.ButtonStyle.danger, custom_id='config_buttons:exit')
-    async def exit(self, button:discord.ui.Button, interaction:discord.Interaction):
+    @disnake.ui.button(label = 'Exit', style=disnake.ButtonStyle.danger, custom_id='config_buttons:exit')
+    async def exit(self, button:disnake.ui.Button, interaction:disnake.Interaction):
         msg = interaction.message
         await msg.delete()
 
 
 
-class enter_config_buttons(discord.ui.View):
+class enter_config_buttons(disnake.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
-    config_panel = discord.Embed(title = 'Configuration Panel',
+    config_panel = disnake.Embed(title = 'Configuration Panel',
     description='Configure the servers systems here.')
-    @discord.ui.button(label = 'Configure', style = discord.ButtonStyle.primary, custom_id='enter_config_buttons:configure')
-    async def configure(self, button:discord.ui.Button, interaction:discord.Interaction):
+    @disnake.ui.button(label = 'Configure', style = disnake.ButtonStyle.primary, custom_id='enter_config_buttons:configure')
+    async def configure(self, button:disnake.ui.Button, interaction:disnake.Interaction):
         async with asqlite.connect('guild_data.db') as conn:
             async with conn.cursor() as cur:
                 c = await cur.execute('SELECT * from systems WHERE guild_id = :guild_id', {'guild_id':interaction.message.guild.id})
                 data = await c.fetchone()
-                config_panel = discord.Embed(title = 'Configuration Panel',
+                config_panel = disnake.Embed(title = 'Configuration Panel',
                     description='Configure the servers systems here.')
                 guild, afk, level, warn, mute, welcome, server = data
                 if afk == 1:
@@ -281,8 +281,8 @@ class enter_config_buttons(discord.ui.View):
 
 
 
-    @discord.ui.button(label = 'Cancel', style=discord.ButtonStyle.danger, custom_id='enter_config_buttons:cancel')
-    async def cancel(self, button:discord.ui.Button, interaction:discord.Interaction):
+    @disnake.ui.button(label = 'Cancel', style=disnake.ButtonStyle.danger, custom_id='enter_config_buttons:cancel')
+    async def cancel(self, button:disnake.ui.Button, interaction:disnake.Interaction):
         msg = interaction.message
         await msg.delete()
 
@@ -352,7 +352,7 @@ class Configuration(commands.Cog):
         c = await servers.execute('SELECT * FROM systems WHERE guild_id = :guild_id', {'guild_id':ctx.guild.id})
         data = await c.fetchone()
         guild, afk, level, warn, mute, welcome, server = data
-        em = discord.Embed(title = "{}'s Server Settings".format(ctx.guild.name))
+        em = disnake.Embed(title = "{}'s Server Settings".format(ctx.guild.name))
 
         if afk == 1:
             afk = ':white_check_mark:'
@@ -443,7 +443,7 @@ class Configuration(commands.Cog):
         else:
             server = ':no_entry:'
 
-        con = discord.Embed(title='Current Configuration.',
+        con = disnake.Embed(title='Current Configuration.',
         description='This is your current system configuration for this server.')
         con.add_field(name='\u200b', value='AFK System - {}'.format(afk), inline = False)
         con.add_field(name='\u200b', value='Level System - {}'.format(level), inline = False)

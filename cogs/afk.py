@@ -1,6 +1,6 @@
-import discord
-from discord.ext import commands
-import datetime
+import disnake
+from disnake.ext import commands
+
 
 '''
 Tables
@@ -39,7 +39,7 @@ class AFK(commands.Cog):
                 await ctx.author.edit(nick = 'AFK~'+ ctx.author.display_name)
                 await ctx.send('{} Your afk is now set.'.format(ctx.author.mention))
                 await servers.execute("INSERT INTO afk_data VALUES (:user_id, :reason, :time)", {'user_id':ctx.author.id, 'reason':reason, 'time':int(timestamp[:-4])})
-            except discord.Forbidden:
+            except disnake.Forbidden:
                 await ctx.send('{} Your afk is now set.'.format(ctx.author.mention))
                 await servers.execute("INSERT INTO afk_data VALUES (:user_id, :reason, :time)", {'user_id':ctx.author.id, 'reason':reason, 'time':int(timestamp[:-4])})
         else:
@@ -99,7 +99,7 @@ class AFK(commands.Cog):
                     await message.channel.send('I have removed your afk {}. Welcome back!'.format(author.mention))
                     await servers.execute('DELETE FROM afk_data WHERE user_id = :user_id', {'user_id':author.id})
 
-                except discord.Forbidden:
+                except disnake.Forbidden:
                     await message.channel.send('I have removed your afk {}. Welcome back!'.format(author.mention))
                     await servers.execute('DELETE FROM afk_data WHERE user_id = :user_id', {'user_id':author.id})
         else:

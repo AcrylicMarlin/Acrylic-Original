@@ -1,21 +1,20 @@
-import discord
-from discord.ext import commands
+import disnake
+from disnake.ext import commands
 import os
 import asyncio
 import asqlite
 import traceback
 import sys
 import postbin
-from dotenv import load_dotenv
-from dislash import *
-from dislash.interactions import *
 
-load_dotenv()
+
+
+
 os.chdir('C:\\Users\\justi\\Onedrive\\Documents\\Acrylic-old')
 
-bot = commands.Bot(command_prefix="a'" ,intents = discord.Intents.all(), activity=discord.Streaming(name = "a'help", url='https://www.twitch.tv/Acrylic'))
-client = InteractionClient(bot, test_guilds=[859565691597226016])
-# slash = slash_commands.SlashClient(bot)
+bot = commands.Bot(command_prefix="a'" ,intents = disnake.Intents.all(), activity=disnake.Streaming(name = "a'help", url='https://www.twitch.tv/Acrylic'))
+
+
 TOKEN = open('TOKEN.txt').read()
 bot.test_guild = [859565691597226016]
 
@@ -83,7 +82,7 @@ async def on_command_error(ctx, error):
             await ctx.send('You forgot something in this command.')
             traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
             return
-    if isinstance(error, discord.errors.Forbidden):
+    if isinstance(error, disnake.errors.Forbidden):
         await ctx.send("You don't have the permissions required to use this command.")
         return
     traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
@@ -91,7 +90,7 @@ async def on_command_error(ctx, error):
    
 
 
-@client.command(guild_ids = bot.test_guild)
+@bot.command(guild_ids = bot.test_guild)
 async def test(ctx):
     await ctx.send("Slash command go brrr")
 
@@ -119,10 +118,10 @@ bot.db_schema = db_schema
 async def schema(ctx: commands.Context, *tables):
     s = await bot.db_schema('warn_data')
     await ctx.send(
-        embed=discord.Embed(
+        embed=disnake.Embed(
             title="Schema" + (" for " + ", ".join(tables) if tables else ""),
             description=s if len(s) <= 4096 else await postbin.postAsync(s),
-            color=discord.Color.random(),
+            color=disnake.Color.random(),
         )
     )
 

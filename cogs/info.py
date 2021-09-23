@@ -1,6 +1,6 @@
 import psutil
-import discord
-from discord.ext import commands
+import disnake
+from disnake.ext import commands
 
 
 
@@ -24,11 +24,11 @@ class Info(commands.Cog):
     async def botinfo(self, ctx):
         mem = psutil.virtual_memory()
         '''Displays information on Acrylic'''
-        em = discord.Embed(
+        em = disnake.Embed(
             title='My Info',
             description=f'''
             *My Version*: 2.0
-            *Discord API Version*: {discord.__version__}
+            *Discord API Version*: {disnake.__version__}
             *My Prefix*: Slash Commands B)
             *Hardware Usage*: 
                 Cpu: {psutil.cpu_percent()}%
@@ -42,7 +42,7 @@ class Info(commands.Cog):
 
     @commands.command()
     async def guildinfo(self, ctx):
-        em = discord.Embed(
+        em = disnake.Embed(
             title = "{}'s info".format(ctx.guild.name),
             description='''
             Name: {}
@@ -56,14 +56,14 @@ class Info(commands.Cog):
         await ctx.send(embed=em)
     
     @commands.command()
-    async def userinfo(self, ctx, member:discord.Member=None):
+    async def userinfo(self, ctx, member:disnake.Member=None):
         if member is None:
             member = ctx.author
         
         mappedList = list(map(lambda x: x.mention, member.roles[1:]))
         roles = ', '.join(list(map(lambda x: x.strip("'"), mappedList)))
 
-        em = discord.Embed(
+        em = disnake.Embed(
             title="{}'s Information",
             description='''
             Name: {}

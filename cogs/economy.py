@@ -1,5 +1,5 @@
-import discord
-from discord.ext import commands
+import disnake
+from disnake.ext import commands
 import asqlite
 from datetime import datetime
 import random
@@ -48,7 +48,7 @@ class Economy(commands.Cog):
 
 
     @commands.command(aliases = ['bal'])
-    async def balance(self, ctx, member:discord.Member=None):
+    async def balance(self, ctx, member:disnake.Member=None):
         if member is None:
             member = ctx.author
         if member == ctx.author:
@@ -63,7 +63,7 @@ class Economy(commands.Cog):
                     return
                 cash, bank = data
 
-        em = discord.Embed(
+        em = disnake.Embed(
             title="{}'s Balance".format(member.display_name),
             description='''
             ***Bank***: {}
@@ -81,7 +81,7 @@ class Economy(commands.Cog):
 
         if chance >= 50:
             money = random.randrange(0, 101)
-            em = discord.Embed(
+            em = disnake.Embed(
                 title='Someone gave you {}AC!'.format(money),
                 description='''*Although you did get coins, there is big chance you won't, and you dont get very much.
                 There are better ways to make money man.*'''
@@ -93,7 +93,7 @@ class Economy(commands.Cog):
                     await cur.execute('UPDATE bank SET cash = (SELECT cash WHERE user_id = user_id) + :amount WHERE user_id = :user_id', {'user_id':ctx.author.id, 'amount':money})
             await ctx.reply(embed = em)
         else:
-            em = discord.Embed(
+            em = disnake.Embed(
                 title = 'No coins for you.',
                 description='No one was nice enough to give you any coins. There are better ways to get AC man.'
             )

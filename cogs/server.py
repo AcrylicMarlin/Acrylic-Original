@@ -1,6 +1,6 @@
 from ast import Str
-import discord
-from discord.ext import commands
+import disnake
+from disnake.ext import commands
 import traceback
 import sys
 import typing
@@ -31,7 +31,7 @@ class Server(commands.Cog):
         aliases = ['amr', 'AMR'],
         help = 'Adds a role to a member.')
     @commands.has_permissions(manage_roles = True)
-    async def add_member_role(self, ctx, member:discord.Member=None, *, name):
+    async def add_member_role(self, ctx, member:disnake.Member=None, *, name):
         c = await self.bot.servers.execute('SELECT server FROM systems WHERE guild_id = :guild_id', {'guild_id':ctx.guild.id})
         data = await c.fetchone()
         server = data[0]
@@ -41,7 +41,7 @@ class Server(commands.Cog):
                 await ctx.send('Specify a member to add this role too.')
                 return
 
-            role = discord.utils.get(ctx.guild.roles, name = name)
+            role = disnake.utils.get(ctx.guild.roles, name = name)
             if not role:
                 await ctx.send('Looks like the role you gave me does not exist. Try again.\n*Note: Make sure to write it exactly as it is spelled in the role list.*')
                 return
@@ -63,7 +63,7 @@ class Server(commands.Cog):
         aliases = ['rmr', 'RMR'],
         help = 'Removes a role from a member.')
     @commands.has_permissions(manage_roles = True)
-    async def remove_member_role(self, ctx, member:discord.Member=None, *, name):
+    async def remove_member_role(self, ctx, member:disnake.Member=None, *, name):
         c = await self.bot.servers.execute('SELECT server FROM systems WHERE guild_id = :guild_id', {'guild_id':ctx.guild.id})
         data = await c.fetchone()
         server = data[0]
@@ -72,7 +72,7 @@ class Server(commands.Cog):
             if member is None:
                 await ctx.send('Specify a member to remove this role from.')
                 return
-            role = discord.utils.get(ctx.guild.roles, name = name)
+            role = disnake.utils.get(ctx.guild.roles, name = name)
             if not role:
                 await ctx.send('Looks like the role you gave me does not exist. Try again.\n*Note: Make sure to write it exactly as it is spelled in the role list.*')
                 return
@@ -131,7 +131,7 @@ class Server(commands.Cog):
         server = data[0]
         if server == 1:
 
-            role = discord.utils.get(ctx.guild.roles, name = role)
+            role = disnake.utils.get(ctx.guild.roles, name = role)
             await role.delete()
             await ctx.send('The role has been deleted from the server.')
         else:
@@ -162,7 +162,7 @@ class Server(commands.Cog):
 
             if ',' in arg:
                 channelName, category = arg.split(', ')
-                category = discord.utils.get(ctx.guild.categories, name = category)
+                category = disnake.utils.get(ctx.guild.categories, name = category)
 
             else:
                 channelName = arg
@@ -256,7 +256,7 @@ class Server(commands.Cog):
         server = data[0]
         if server == 1:
 
-            cat = discord.utils.get(ctx.guild.categories, name = name)
+            cat = disnake.utils.get(ctx.guild.categories, name = name)
             await cat.delete()
             await ctx.send('Category deleted.')
         else:
@@ -305,7 +305,7 @@ class Server(commands.Cog):
         server = data[0]
         if server == 1:
 
-            chan = discord.utils.get(ctx.guild.channels, name = name)
+            chan = disnake.utils.get(ctx.guild.channels, name = name)
             await chan.delete()
             await ctx.send('Channel deleted.')
         else:
@@ -354,13 +354,13 @@ class Server(commands.Cog):
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
         print('I joined a new guild named {}!'.format(guild.name))
-        em = discord.Embed(title = 'Thank you for choosing Acrylic.',
+        em = disnake.Embed(title = 'Thank you for choosing Acrylic.',
         description = "Thank you so much for allowing me to be a part of your server. My creator worked long and hard for this.\nTo begin use the command `a'help` for a list of commands.")
         try:
             await guild.owner.send(embed = em)
             
         
-        except discord.Forbidden:
+        except disnake.Forbidden:
             await guild.system_channel.send(embed = em)
             
 

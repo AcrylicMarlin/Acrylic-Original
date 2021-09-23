@@ -1,7 +1,7 @@
 import sys
 import traceback
-import discord
-from discord.ext import commands
+import disnake
+from disnake.ext import commands
 import datetime
 
 '''
@@ -32,7 +32,7 @@ class Moderation(commands.Cog):
         help = 'Warns a user for your reason.'
     )
     @commands.has_permissions(manage_guild = True)
-    async def warn(self, ctx, member:discord.Member=None, *, reason=None):
+    async def warn(self, ctx, member:disnake.Member=None, *, reason=None):
         servers = self.bot.servers
         msg_time = ctx.message.created_at
         
@@ -65,7 +65,7 @@ class Moderation(commands.Cog):
         aliases = ['getwarns', 'gw'],
         help = 'Gets the warns of a certain user.')
     @commands.has_permissions(manage_guild=True)
-    async def get_warns(self, ctx, member:discord.Member=None):
+    async def get_warns(self, ctx, member:disnake.Member=None):
         servers = self.bot.servers
         if member is None:
                 await ctx.send('Specify a member.')
@@ -77,7 +77,7 @@ class Moderation(commands.Cog):
         data = await servers.execute('SELECT admin_id, reason, time FROM warns WHERE guild_id = :guild_id AND user_id = :user_id',{'guild_id':ctx.guild.id, 'user_id':member.id})
         warns = await data.fetchall()
         i = 1
-        em = discord.Embed(title = "***{}'s Warnings***".format(member.display_name))
+        em = disnake.Embed(title = "***{}'s Warnings***".format(member.display_name))
         for item in warns:
             admin, warning, time = item
             admin = ctx.guild.get_member(admin)
@@ -103,7 +103,7 @@ class Moderation(commands.Cog):
         aliases = ['clearwarns', 'cw'],
         help = 'Clears the warns of a certain user. (You will be prompted to confirm if you would like to do this.)')
     @commands.has_guild_permissions(administrator=True)
-    async def clear_warns(self, ctx, member:discord.Member=None):
+    async def clear_warns(self, ctx, member:disnake.Member=None):
         
         if member == ctx.author:
             await ctx.send("You can't clear your own warns.")
@@ -126,7 +126,7 @@ class Moderation(commands.Cog):
             try:
                 await member.send('Your warns have been cleared in {}. You are a lucky person {}.'.format(ctx.guild.name, member.display_name))
                 await ctx.send("Cleared {}'s warns.".format(member.display_name))
-            except discord.Forbidden:
+            except disnake.Forbidden:
                 await ctx.send("Cleared {}'s warns.".format(member.display_name))
 
         elif ms.content == 'no' or ms.content == 'No':
@@ -149,7 +149,7 @@ class Moderation(commands.Cog):
         aliases = ['dw', 'delwarn', 'deletewarn'],
         help = 'Deletes a warn from a user.')
     @commands.has_permissions(manage_guild = True)
-    async def delete_warn(self, ctx, member:discord.Member):
+    async def delete_warn(self, ctx, member:disnake.Member):
         servers = self.bot.servers
 
         
@@ -157,7 +157,7 @@ class Moderation(commands.Cog):
             await ctx.send('You have removed a warn from {}.'.format(member.display_name))
             await member.send('A warn has been removed from your list in {}. Use this chance wisely {}.'.format(ctx.guild.name, member.display_name))
         
-        except discord.Forbidden:
+        except disnake.Forbidden:
             await ctx.send('You have removed a warn from {}.'.format(member.display_name))
             
         await servers.execute('''DELETE FROM warns WHERE guild_id = :guild_id AND user_id=:user_id AND time = (SELECT MAX(time) FROM warns)''', {'guild_id':ctx.guild.id, 'user_id':member.id})
@@ -188,7 +188,7 @@ class Moderation(commands.Cog):
         help = 'Kicks a user from the server.'
     )
     @commands.has_permissions(kick_members = True)
-    async def kick(self, ctx, member:discord.Member=None, *, reason = None):
+    async def kick(self, ctx, member:disnake.Member=None, *, reason = None):
         if member == None:
             await ctx.send("I can't kick what I can't see")
             return
@@ -203,9 +203,9 @@ class Moderation(commands.Cog):
         try:
 
             await member.send('You have been kicked from {} for {}'.format(ctx.guild.name, reason))
-        except discord.Forbidden:
+        except disnake.Forbidden:
             await ctx.send('Dm Failed')
-        except discord.HTTPException:
+        except disnake.HTTPException:
             await ctx.send('Dm Failed')
         
         await ctx.guild.kick(member)
@@ -224,7 +224,7 @@ class Moderation(commands.Cog):
         help = 'Bans a user from the server.'
     )
     @commands.has_permissions(ban_members = True)
-    async def ban(self, ctx, member:discord.Member, *, reason):
+    async def ban(self, ctx, member:disnake.Member, *, reason):
         if member == ctx.author:
             await ctx.send('You cannot ban yourself.')
             return
@@ -237,7 +237,7 @@ class Moderation(commands.Cog):
         try:
             await member.send('You were banned from {} for {}'.format(ctx.guild.name, reason))
             await ctx.send('{} was banned from {} for {}'.format(member.display_name, ctx.guild.name, reason))
-        except discord.Forbidden:
+        except disnake.Forbidden:
             await ctx.send('{} was banned from {} for {}'.format(member.display_name, ctx.guild.name, reason))
         
         await ctx.guild.ban(member)
@@ -271,7 +271,7 @@ class Moderation(commands.Cog):
     )
     @commands.has_permissions(ban_members = True)
     async def unban(self, ctx, *, member):
-        await ctx.guild.unban(discord.Object(id=member))
+        await ctx.guild.unban(disnake.Object(id=member))
         await ctx.send('They have unbanned.')
         user = self.bot.get_user(member)
         inv = await ctx.channel.create_invite()
@@ -297,7 +297,7 @@ class Moderation(commands.Cog):
         help = 'Mutes a user.'
     )
     @commands.has_permissions(manage_messages = True)
-    async def mute(self, ctx, member:discord.Member=None, * , reason=None):
+    async def mute(self, ctx, member:disnake.Member=None, * , reason=None):
         servers  = self.bot.servers
         c = await servers.execute('SELECT mute FROM systems WHERE guild_id = :guild_id', {'guild_id':ctx.guild.id})
         data = await c.fetchone()
@@ -314,7 +314,7 @@ class Moderation(commands.Cog):
         if mute:
             await ctx.send('This member is already muted.')
         guild = ctx.guild
-        muteRole = discord.utils.get(guild.roles, name='Muted')
+        muteRole = disnake.utils.get(guild.roles, name='Muted')
 
         if not muteRole:
             muteRole = await guild.create_role(name='Muted')
@@ -342,7 +342,7 @@ class Moderation(commands.Cog):
         help = 'Unmutes a member.'
     )
     @commands.has_permissions(manage_messages = True)
-    async def unmute(self, ctx, member:discord.Member=None):
+    async def unmute(self, ctx, member:disnake.Member=None):
         servers  = self.bot.servers
         c = await servers.execute('SELECT user_id FROM mutes WHERE guild_id = :guild_id AND user_id = :user_id', {'guild_id':ctx.guild.id, 'user_id':member.id})
         mute = await c.fetchone()
@@ -355,7 +355,7 @@ class Moderation(commands.Cog):
             return
 
         await servers.execute('DELETE FROM mutes WHERE guild_id = :guild_id AND user_id = :user_id', {'guild_id':ctx.guild.id, 'user_id':member.id})
-        mutedRole = discord.utils.get(ctx.guild.roles, name = 'Muted')
+        mutedRole = disnake.utils.get(ctx.guild.roles, name = 'Muted')
         await member.remove_roles(mutedRole)
 
         await member.send('You were unmuted in {}'.format(ctx.guild.name))
@@ -385,12 +385,12 @@ class Moderation(commands.Cog):
         c = await servers.execute('SELECT user_id, admin_id, reason, time FROM mutes WHERE guild_id = :guild_id', {'guild_id':ctx.guild.id})
 
         data = await c.fetchall()
-        em = discord.Embed(title = "{}'s mutes".format(ctx.guild.name))
+        em = disnake.Embed(title = "{}'s mutes".format(ctx.guild.name))
         for item in data:
             user, admin, reason, time = item
 
-            user = discord.utils.get(ctx.guild.members, id = user)
-            admin = discord.utils.get(ctx.guild.members, id = admin)
+            user = disnake.utils.get(ctx.guild.members, id = user)
+            admin = disnake.utils.get(ctx.guild.members, id = admin)
 
             
 

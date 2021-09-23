@@ -1,7 +1,7 @@
-import discord
-from discord.ext import commands
+import disnake
+from disnake.ext import commands
 import random
-from dislash import slash_command
+
 
 '''
 Tables
@@ -74,7 +74,7 @@ class Extra(commands.Cog):
                         'Very doubtful']
         choice = random.choice(responses)
 
-        embed = discord.Embed(
+        embed = disnake.Embed(
             title = '***Magic 8Ball***',
             description = 'Your question was:\n**{}**.\nYour answer is:\n*{}*'.format(question, choice))
         
