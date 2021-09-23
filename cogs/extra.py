@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 import random
+from dislash import slash_command
 
 '''
 Tables
@@ -19,9 +20,7 @@ class Extra(commands.Cog):
 
     
 
-    @commands.command(
-        help = 'Gets the bots ping.'
-    )
+    @commands.command(guild_ids = [])
     async def ping(self, ctx):
         await ctx.reply(f'Pong! `{int(round(self.bot.latency, 2) * 100)} ms`')
 

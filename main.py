@@ -7,11 +7,17 @@ import traceback
 import sys
 import postbin
 from dotenv import load_dotenv
-load_dotenv
+from dislash import *
+from dislash.interactions import *
+
+load_dotenv()
 os.chdir('C:\\Users\\justi\\Onedrive\\Documents\\Acrylic-old')
 
-bot = commands.Bot(command_prefix="a'", intents = discord.Intents.all(), )
+bot = commands.Bot(command_prefix="a'" ,intents = discord.Intents.all(), activity=discord.Streaming(name = "a'help", url='https://www.twitch.tv/Acrylic'))
+client = InteractionClient(bot, test_guilds=[859565691597226016])
+# slash = slash_commands.SlashClient(bot)
 TOKEN = open('TOKEN.txt').read()
+bot.test_guild = [859565691597226016]
 
 bot.help_command = None
 
@@ -35,7 +41,8 @@ async def initialise():
         if data is None:
             await bot.servers.execute("INSERT INTO config VALUES (:guild_id, 'null', 'null', 'null')", {'guild_id':guild.id})
 
-    await bot.change_presence(activity=discord.Streaming(name = 'to {} Users!'.format(len(set(bot.users))), url='https://www.twitch.tv/Acrylic'))
+    
+    
 
     
     
@@ -84,9 +91,9 @@ async def on_command_error(ctx, error):
    
 
 
-@bot.command(hidden = True)
+@client.command(guild_ids = bot.test_guild)
 async def test(ctx):
-    await ctx.send(int(ctx.author.joined_at.timestamp()))
+    await ctx.send("Slash command go brrr")
 
 
 async def db_schema(*tables):
