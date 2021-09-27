@@ -1,6 +1,8 @@
+import random
 import disnake
 from disnake.ext import commands
-import random
+from disnake.ext.commands import Param
+
 
 
 '''
@@ -13,16 +15,21 @@ warns (guild_id int, user_id int, admin_id, int, reason text, time int, id int)
 level_data (guild_id int, user_id int, exp int, level int)
 afk_data (user_id int NOT NULL UNIQUE, reason int, time int)
 '''
-
+test_guild = [859565691597226016]
 class Extra(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
     
 
-    @commands.command(guild_ids = [])
-    async def ping(self, ctx):
-        await ctx.reply(f'Pong! `{int(round(self.bot.latency, 2) * 100)} ms`')
+    @commands.slash_command(
+        guild_ids = test_guild,
+        description='Gets the bots ping'
+        )
+    async def ping(
+        self,
+        inter: disnake.ApplicationCommandInteraction):
+        await inter.response.send_message(f'Pong! `{int(round(self.bot.latency, 2) * 100)} ms`')
 
 
 
@@ -33,11 +40,15 @@ class Extra(commands.Cog):
 
 
 
-    @commands.command(
-        help = 'Agrees with your bruh.'
+    @commands.slash_command(
+        guild_ids=test_guild,
+        description = 'Agrees with your bruh.'
     )
-    async def bruh(self, ctx):
-        await ctx.send('Fr')
+    async def bruh(
+        self,
+        inter: disnake.ApplicationCommandInteraction
+    ):
+        await inter.response.send_message('Fr')
 
 
 
@@ -48,10 +59,15 @@ class Extra(commands.Cog):
 
 
 
-    @commands.command(
-        aliases = ['8Ball', '8ball', '8b'],
-        help = 'Ask a question and it gives you an answer.')
-    async def _8ball(self, ctx, *, question):
+    @commands.slash_command(
+        guild_ids=test_guild,
+        name = '8ball',
+        description = 'Ask a question and it gives you an answer.')
+    async def magicBall(
+        self,
+        inter: disnake.ApplicationCommandInteraction,
+        question: str = Param(name = 'question', description = 'Input your question')
+    ):
         responses = ['It is certain',
                         'It is decidedly so',
                         'Without a doubt',
@@ -78,7 +94,7 @@ class Extra(commands.Cog):
             title = '***Magic 8Ball***',
             description = 'Your question was:\n**{}**.\nYour answer is:\n*{}*'.format(question, choice))
         
-        await ctx.send(embed = embed)
+        await inter.response.send_message(embed = embed)
 
 
         

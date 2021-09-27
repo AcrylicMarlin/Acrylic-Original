@@ -3,7 +3,7 @@ from disnake.ext import commands
 import asqlite
 from datetime import datetime
 import random
-import typing
+
 
 
 
