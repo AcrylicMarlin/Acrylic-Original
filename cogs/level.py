@@ -1,19 +1,9 @@
 import math
 import disnake
 from disnake.ext import commands
+from disnake.ext.commands import Param
 import asyncio
 
-
-'''
-Tables
-role_data (guild_id integer, member_role text, admin_role, mod_role)
-afk (guild_id integer, afk_sys integer)
-level (guild_id integer, level_sys integer)
-mutes (guild_id int, user_id int, admin_id int)
-warns (guild_id int, user_id int, admin_id, int, reason text, time int, id int)
-level_data (guild_id int, user_id int, exp int, level int)
-afk_data (user_id int NOT NULL UNIQUE, reason int, time int)
-'''
 
 class level(commands.Cog):
     def __init__(self, bot):
@@ -83,33 +73,33 @@ class level(commands.Cog):
             return
 
 
-    @commands.command(
-        help = 'Stats of yourself.',
-        hidden = True
-    )
-    async def stats(self, ctx, member:disnake.Member=None):
+    @commands.slash_command()
+    async def stats(
+        self,
+        inter:disnake.ApplicationCommandInteraction,
+        member:disnake.Member=Param(None, name = 'member', description = 'person you want to see (defaults to yourself)')):
         servers  = self.bot.servers
-        cur = await servers.execute('SELECT level FROM systems WHERE guild_id = :guild_id', {'guild_id':ctx.guild.id})
+        cur = await servers.execute('SELECT level FROM systems WHERE guild_id = :guild_id', {'guild_id':inter.guild.id})
         data = await cur.fetchone()
         level_sys = data[0]
         if level_sys == 1:
             if member is None:
 
-                c = await servers.execute('SELECT exp, level FROM level_data WHERE guild_id = :guild_id AND user_id = :user_id', {'guild_id':ctx.guild.id, 'user_id':ctx.author.id})
+                c = await servers.execute('SELECT exp, level FROM level_data WHERE guild_id = :guild_id AND user_id = :user_id', {'guild_id':inter.guild.id, 'user_id':inter.author.id})
                 data = await c.fetchone()
                 xp,lvl=data
                 em = disnake.Embed(
-                    title="{}'s Level Stats".format(ctx.author.display_name),
+                    title="{}'s Level Stats".format(inter.author.display_name),
                     )
 
                 exp_left =(lvl*100+lvl*50) - xp
-                em.set_thumbnail(url=ctx.author.avatar.url)
+                em.set_thumbnail(url=inter.author.avatar.url)
                 em.set_footer(text = 'Your Stats', icon_url=self.bot.user.avatar.url)
                 em.add_field(name='\u200b', value='Your are level {}.'.format(lvl), inline=False)
                 em.add_field(name='\u200b', value='Exp left to next rank {}'.format(exp_left), inline=False)
-                await ctx.send(embed=em)
+                await inter.response.send_message(embed=em)
             else:
-                c = await servers.execute('SELECT exp, level FROM level_data WHERE guild_id = :guild_id AND user_id = :user_id', {'guild_id':ctx.guild.id, 'user_id':member.id})
+                c = await servers.execute('SELECT exp, level FROM level_data WHERE guild_id = :guild_id AND user_id = :user_id', {'guild_id':inter.guild.id, 'user_id':member.id})
                 data = await c.fetchone()
                 xp,lvl=data
                 em = disnake.Embed(
@@ -121,10 +111,10 @@ class level(commands.Cog):
                 em.set_footer(text = "{}'s Stats".format(member.display_name), icon_url=self.bot.user.avatar.url)
                 em.add_field(name='\u200b', value='Your are level {}.'.format(lvl), inline=False)
                 em.add_field(name='\u200b', value='Exp left to next rank {}'.format(exp_left), inline=False)
-                await ctx.send(embed=em)
+                await inter.response.send_message(embed=em)
 
         else:
-            await ctx.send('Your admins have disabled this system for this server.')
+            await inter.response.send_message('Your admins have disabled this system for this server.')
 
 
 

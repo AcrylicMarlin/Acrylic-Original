@@ -1,5 +1,6 @@
 import disnake
 from disnake.ext import commands
+from disnake.ext.commands import Param
 import asqlite
 from datetime import datetime
 import random
@@ -47,19 +48,21 @@ class Economy(commands.Cog):
 
 
 
-    @commands.command(aliases = ['bal'])
-    async def balance(self, ctx, member:disnake.Member=None):
+    @commands.slash_command()
+    async def balance(self,
+    inter: disnake.ApplicationCommandInteraction,
+    member:disnake.Member=Param(None, description = 'Member to see (You if blank)')):
         if member is None:
-            member = ctx.author
-        if member == ctx.author:
+            member = inter.author
+        
 
-            await self.create_bank(member)
+        await self.create_bank(member)
         
         async with asqlite.connect('Economy.db') as conn:
             async with conn.cursor() as cur:
                 data = await (await cur.execute('SELECT cash, bank FROM bank WHERE user_id = :user_id', {'user_id':member.id})).fetchone()
                 if data is None:
-                    await ctx.reply('Member {} has not been registered in my system.'.format(member.mention))
+                    await inter.reply('Member {} has not been registered in my system.'.format(member.mention))
                     return
                 cash, bank = data
 
@@ -71,12 +74,14 @@ class Economy(commands.Cog):
             ***Cash***: {}'''.format(int(bank), int(cash))
         )
         em.set_footer(icon_url = self.bot.user.avatar.url, text=f'Serving {member.display_name}')
-        await ctx.reply(embed = em)
+        await inter.send(embed = em)
 
 
-    @commands.command()
-    async def beg(self, ctx):
-        await self.create_bank(ctx.author)
+    @commands.slash_command()
+    async def beg(
+        self,
+        inter:disnake.ApplicationCommandInteraction):
+        await self.create_bank(inter.author)
         chance = random.randrange(0, 101)
 
         if chance >= 50:
@@ -90,54 +95,56 @@ class Economy(commands.Cog):
             
             async with asqlite.connect('Economy.db') as conn:
                 async with conn.cursor() as cur:
-                    await cur.execute('UPDATE bank SET cash = (SELECT cash WHERE user_id = user_id) + :amount WHERE user_id = :user_id', {'user_id':ctx.author.id, 'amount':money})
-            await ctx.reply(embed = em)
+                    await cur.execute('UPDATE bank SET cash = (SELECT cash WHERE user_id = user_id) + :amount WHERE user_id = :user_id', {'user_id':inter.author.id, 'amount':money})
+            await inter.send(embed = em)
         else:
             em = disnake.Embed(
                 title = 'No coins for you.',
                 description='No one was nice enough to give you any coins. There are better ways to get AC man.'
             )
-            await ctx.reply(embed = em)
+            await inter.send(embed = em)
 
         
         
-    @commands.command(aliases = ['with'])
-    async def withdraw(self, ctx, amount):
-        await self.create_bank(ctx.author)
+    @commands.slash_command()
+    async def withdraw(self,
+    inter:disnake.ApplicationCommandInteraction,
+    amount: int = Param(name = 'amount', description = 'amount to withdraw')):
+        await self.create_bank(inter.author)
         try:
             amount = int(amount)
             async with asqlite.connect('Economy.db') as conn:
                 async with conn.cursor() as cur:
-                    bank = (await (await cur.execute('SELECT bank FROM bank WHERE user_id = :user_id',{'user_id':ctx.author.id})).fetchone())[0]
+                    bank = (await (await cur.execute('SELECT bank FROM bank WHERE user_id = :user_id',{'user_id':inter.author.id})).fetchone())[0]
                     if int(bank) == 0:
-                        await ctx.reply('There is no money to pull out of your bank.')
+                        await inter.reply('There is no money to pull out of your bank.')
                         return
                     if int(bank) < amount:
-                        await ctx.reply("You don't have that much money. I'm not a charity!")
+                        await inter.reply("You don't have that much money. I'm not a charity!")
 
                     else:
                         
-                        await cur.execute('UPDATE bank SET cash =(SELECT cash FROM bank WHERE user_id = :user_id) + :amount, bank = (SELECT bank FROM bank WHERE user_id = :user_id) - :amount', {'amount':amount, 'user_id':ctx.author.id})
-                        await ctx.reply('Withdrew {}AC'.format(amount))
+                        await cur.execute('UPDATE bank SET cash =(SELECT cash FROM bank WHERE user_id = :user_id) + :amount, bank = (SELECT bank FROM bank WHERE user_id = :user_id) - :amount', {'amount':amount, 'user_id':inter.author.id})
+                        await inter.reply('Withdrew {}AC'.format(amount))
         except ValueError:
-            arg = ' '.join((ctx.message.content.split(' '))[1:])
+            arg = ' '.join((inter.message.content.split(' '))[1:])
             if arg != 'max':
 
-                await ctx.reply('"{}" is not a number.'.format(arg))
+                await inter.reply('"{}" is not a number.'.format(arg))
                 return
             else:
                 async with asqlite.connect('Economy.db') as conn:
                     async with conn.cursor() as cur:
-                        bank = (await (await cur.execute('SELECT bank FROM bank WHERE user_id = :user_id',{'user_id':ctx.author.id})).fetchone())[0]
+                        bank = (await (await cur.execute('SELECT bank FROM bank WHERE user_id = :user_id',{'user_id':inter.author.id})).fetchone())[0]
                         if int(bank) == 0:
-                            await ctx.reply('There is no money to pull out of your bank.')
+                            await inter.reply('There is no money to pull out of your bank.')
                             return
                         
 
                         else:
-                            amount = (await (await cur.execute('SELECT bank FROM bank WHERE user_id = :user_id', {'user_id':ctx.author.id})).fetchone())[0]
-                            await cur.execute('UPDATE bank SET cash =(SELECT cash FROM bank WHERE user_id = :user_id) + :amount, bank = (SELECT bank FROM bank WHERE user_id = :user_id) - :amount', {'amount':amount, 'user_id':ctx.author.id})
-                            await ctx.reply('Withdrew {}AC'.format(amount))
+                            amount = (await (await cur.execute('SELECT bank FROM bank WHERE user_id = :user_id', {'user_id':inter.author.id})).fetchone())[0]
+                            await cur.execute('UPDATE bank SET cash =(SELECT cash FROM bank WHERE user_id = :user_id) + :amount, bank = (SELECT bank FROM bank WHERE user_id = :user_id) - :amount', {'amount':amount, 'user_id':inter.author.id})
+                            await inter.reply('Withdrew {}AC'.format(amount))
                 
               
         
@@ -152,29 +159,31 @@ class Economy(commands.Cog):
                 
                     
                 
-    @commands.command(aliases = ['dep'])
-    async def deposit(self, ctx, amount):
-        await self.create_bank(ctx.author)
+    @commands.slash_command()
+    async def deposit(self,
+    inter: disnake.ApplicationCommandInteraction,
+    amount: int = Param(name = 'amount', description = 'amount to withdraw')):
+        await self.create_bank(inter.author)
         try:
             amount = int(amount)
             async with asqlite.connect('Economy.db') as conn:
                 async with conn.cursor() as cur:
-                    cash = (await (await cur.execute('SELECT cash FROM bank WHERE user_id = :user_id',{'user_id':ctx.author.id})).fetchone())[0]
+                    cash = (await (await cur.execute('SELECT cash FROM bank WHERE user_id = :user_id',{'user_id':inter.author.id})).fetchone())[0]
                     if int(cash) == 0:
-                        await ctx.reply("You... don't have any money to give.")
+                        await inter.reply("You... don't have any money to give.")
                         return
                     elif int(cash) < amount:
-                        await ctx.reply("You don't have that much money on hand.")
+                        await inter.reply("You don't have that much money on hand.")
                         return
                     else:
                         
-                        await cur.execute('UPDATE bank SET cash =(SELECT cash FROM bank WHERE user_id = :user_id) - :amount, bank = (SELECT bank FROM bank WHERE user_id = :user_id) + :amount', {'amount':amount, 'user_id':ctx.author.id})
-                        await ctx.reply('Depostied {}AC'.format(amount))
+                        await cur.execute('UPDATE bank SET cash =(SELECT cash FROM bank WHERE user_id = :user_id) - :amount, bank = (SELECT bank FROM bank WHERE user_id = :user_id) + :amount', {'amount':amount, 'user_id':inter.author.id})
+                        await inter.reply('Depostied {}AC'.format(amount))
         except ValueError:
-            arg = ' '.join((ctx.message.content.split(' '))[1:])
+            arg = ' '.join((inter.message.content.split(' '))[1:])
             if arg != 'max':
 
-                await ctx.reply('"{}" is not a number.'.format(arg))
+                await inter.reply('"{}" is not a number.'.format(arg))
                 return
             else:
                 
@@ -182,15 +191,15 @@ class Economy(commands.Cog):
                     
                 async with asqlite.connect('Economy.db') as conn:
                     async with conn.cursor() as cur:
-                        cash = (await (await cur.execute('SELECT cash FROM bank WHERE user_id = :user_id',{'user_id':ctx.author.id})).fetchone())[0]
+                        cash = (await (await cur.execute('SELECT cash FROM bank WHERE user_id = :user_id',{'user_id':inter.author.id})).fetchone())[0]
                         
                         if int(cash) == 0:
-                            await ctx.reply("You... don't have any money to give.")
+                            await inter.reply("You... don't have any money to give.")
                             return
                         
-                        amount = (await (await cur.execute('SELECT cash FROM bank WHERE user_id = :user_id', {'user_id':ctx.author.id})).fetchone())[0]
-                        await cur.execute('UPDATE bank SET cash =(SELECT cash FROM bank WHERE user_id = :user_id) - :amount, bank = (SELECT bank FROM bank WHERE user_id = :user_id) + :amount', {'amount':amount, 'user_id':ctx.author.id})
-                        await ctx.reply('Depostied {}AC'.format(amount))
+                        amount = (await (await cur.execute('SELECT cash FROM bank WHERE user_id = :user_id', {'user_id':inter.author.id})).fetchone())[0]
+                        await cur.execute('UPDATE bank SET cash =(SELECT cash FROM bank WHERE user_id = :user_id) - :amount, bank = (SELECT bank FROM bank WHERE user_id = :user_id) + :amount', {'amount':amount, 'user_id':inter.author.id})
+                        await inter.reply('Depostied {}AC'.format(amount))
                         
         
 

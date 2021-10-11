@@ -2,16 +2,7 @@ import disnake
 from disnake.ext import commands
 
 
-'''
-Tables
-role_data (guild_id integer, member_role text, admin_role, mod_role)
-afk (guild_id integer, afk_sys integer)
-level (guild_id integer, level_sys integer)
-mutes (guild_id int, user_id int, admin_id int)
-warns (guild_id int, user_id int, admin_id, int, reason text, time int, id int)
-level_data (guild_id int, user_id int, exp int, level int)
-afk_data (user_id int NOT NULL UNIQUE, reason int, time int)
-'''
+
 
 
 class AFK(commands.Cog):

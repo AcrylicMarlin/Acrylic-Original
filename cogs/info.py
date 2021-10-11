@@ -1,6 +1,7 @@
 import psutil
 import disnake
 from disnake.ext import commands
+from disnake.ext.commands import Param
 
 
 
@@ -20,8 +21,8 @@ class Info(commands.Cog):
         await servers.execute('INSERT INTO guilds VALUES (:guild_id, :name, :time, :count)', {'guild_id':guild.id, 'name':guild.name, 'time':created[:-4], 'count':guild.member_count})
 
 
-    @commands.command()
-    async def botinfo(self, ctx):
+    @commands.slash_command()
+    async def botinfo(self, inter):
         mem = psutil.virtual_memory()
         '''Displays information on Acrylic'''
         em = disnake.Embed(
@@ -37,28 +38,30 @@ class Info(commands.Cog):
             *Users I'm Serving*: {len(set(self.bot.users))}'''
         )
         em.set_thumbnail(url=self.bot.user.avatar.url)
-        em.set_footer(icon_url=ctx.author.avatar.url, text='Serving you always!')
-        await ctx.send(embed=em)
+        em.set_footer(icon_url=inter.author.avatar.url, text='Serving you always!')
+        await inter.send(embed = em)
 
-    @commands.command()
-    async def guildinfo(self, ctx):
+    @commands.slash_command()
+    async def guildinfo(self, inter):
         em = disnake.Embed(
-            title = "{}'s info".format(ctx.guild.name),
+            title = "{}'s info".format(inter.guild.name),
             description='''
             Name: {}
             Number of users: {}
             Created <t:{}:R>
             You joined <t:{}:R>
             Owner: {}
-            '''.format(ctx.guild.name, ctx.guild.member_count, int(ctx.guild.created_at.timestamp()), int(ctx.author.joined_at.timestamp()), ctx.guild.owner.display_name)
+            '''.format(inter.guild.name, inter.guild.member_count, int(inter.guild.created_at.timestamp()), int(inter.author.joined_at.timestamp()), inter.guild.owner.display_name)
             
         )
-        await ctx.send(embed=em)
+        await inter.send(embed=em)
     
-    @commands.command()
-    async def userinfo(self, ctx, member:disnake.Member=None):
+    @commands.slash_command()
+    async def userinfo(self,
+     inter,
+     member:disnake.Member = Param(name = 'member', description = 'Ping the member you would like to see.') ):
         if member is None:
-            member = ctx.author
+            member = inter.author
         
         mappedList = list(map(lambda x: x.mention, member.roles[1:]))
         roles = ', '.join(list(map(lambda x: x.strip("'"), mappedList)))
@@ -74,7 +77,7 @@ class Info(commands.Cog):
 
             '''.format(member.display_name, int(member.created_at.timestamp()), int(member.joined_at.timestamp()), roles)
         )
-        await ctx.send(embed = em)
+        await inter.send(embed = em)
         
 
 

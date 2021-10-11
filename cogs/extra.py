@@ -5,16 +5,7 @@ from disnake.ext.commands import Param
 
 
 
-'''
-Tables
-role_data (guild_id integer, member_role text, admin_role, mod_role)
-afk (guild_id integer, afk_sys integer)
-level (guild_id integer, level_sys integer)
-mutes (guild_id int, user_id int, admin_id int)
-warns (guild_id int, user_id int, admin_id, int, reason text, time int, id int)
-level_data (guild_id int, user_id int, exp int, level int)
-afk_data (user_id int NOT NULL UNIQUE, reason int, time int)
-'''
+
 test_guild = [859565691597226016]
 class Extra(commands.Cog):
     def __init__(self, bot):
@@ -23,7 +14,6 @@ class Extra(commands.Cog):
     
 
     @commands.slash_command(
-        guild_ids = test_guild,
         description='Gets the bots ping'
         )
     async def ping(
@@ -41,7 +31,6 @@ class Extra(commands.Cog):
 
 
     @commands.slash_command(
-        guild_ids=test_guild,
         description = 'Agrees with your bruh.'
     )
     async def bruh(
@@ -60,7 +49,6 @@ class Extra(commands.Cog):
 
 
     @commands.slash_command(
-        guild_ids=test_guild,
         name = '8ball',
         description = 'Ask a question and it gives you an answer.')
     async def magicBall(

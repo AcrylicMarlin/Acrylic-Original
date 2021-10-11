@@ -1,19 +1,12 @@
 from ast import Str
 import disnake
 from disnake.ext import commands
+from disnake.ext.commands import Param
 import traceback
 import sys
 import typing
-'''
-Tables
-role_data (guild_id integer, member_role text, admin_role, mod_role)
-afk (guild_id integer, afk_sys integer)
-level (guild_id integer, level_sys integer)
-mutes (guild_id int, user_id int, admin_id int)
-warns (guild_id int, user_id int, admin_id, int, reason text, time int, id int)
-level_data (guild_id int, user_id int, exp int, level int)
-afk_data (user_id int NOT NULL UNIQUE, reason int, time int)
-'''
+# This is my own folder containing views
+from Things import yesNo
 
 
 
@@ -27,165 +20,204 @@ class Server(commands.Cog):
 
 
 
-    @commands.command(
-        aliases = ['amr', 'AMR'],
-        help = 'Adds a role to a member.')
+    @commands.slash_command(name = 'add-member-role')
     @commands.has_permissions(manage_roles = True)
-    async def add_member_role(self, ctx, member:disnake.Member=None, *, name):
-        c = await self.bot.servers.execute('SELECT server FROM systems WHERE guild_id = :guild_id', {'guild_id':ctx.guild.id})
-        data = await c.fetchone()
-        server = data[0]
-        if server == 1:
-
-            if member is None:
-                await ctx.send('Specify a member to add this role too.')
-                return
-
-            role = disnake.utils.get(ctx.guild.roles, name = name)
-            if not role:
-                await ctx.send('Looks like the role you gave me does not exist. Try again.\n*Note: Make sure to write it exactly as it is spelled in the role list.*')
-                return
-            await member.add_roles(role)
-            await ctx.send('Added the role to {}.'.format(member.display_name))
-        else:
-            await ctx.send('Your server admins have disabled this system.')
-    
-    
-
-
-
-
-
-
-
-
-    @commands.command(
-        aliases = ['rmr', 'RMR'],
-        help = 'Removes a role from a member.')
-    @commands.has_permissions(manage_roles = True)
-    async def remove_member_role(self, ctx, member:disnake.Member=None, *, name):
-        c = await self.bot.servers.execute('SELECT server FROM systems WHERE guild_id = :guild_id', {'guild_id':ctx.guild.id})
-        data = await c.fetchone()
-        server = data[0]
-        if server == 1:
-
-            if member is None:
-                await ctx.send('Specify a member to remove this role from.')
-                return
-            role = disnake.utils.get(ctx.guild.roles, name = name)
-            if not role:
-                await ctx.send('Looks like the role you gave me does not exist. Try again.\n*Note: Make sure to write it exactly as it is spelled in the role list.*')
-                return
-            await member.remove_roles(role)
-            await ctx.send('Role removed from {}'.format(member.display_name))
-        else:
-            await ctx.send('Your server admins have disabled this system.')
-
-
-
-
-
-
-
-
-
-
-
-
-
-    @commands.command(
-        aliases = ['asr', 'ASR'],
-        help = 'Adds a role to this server.')
-    @commands.has_permissions(manage_roles = True)
-    async def add_server_role(self, ctx, *, role):
-        c = await self.bot.servers.execute('SELECT server FROM systems WHERE guild_id = :guild_id', {'guild_id':ctx.guild.id})
-        data = await c.fetchone()
-        server = data[0]
-        if server == 1:
-
-            role = await ctx.guild.create_role(name = role)        
-            await ctx.send("{} role successfully created. Use `a'amr` to add the role to someone.".format(role.mention))
-        else:
-            await ctx.send('Your server admins have disabled this system.')
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    @commands.command(
-        aliases = ['rsr', 'RSR'],
-        help = 'Removes a role from this server.')
-    @commands.has_permissions(manage_roles = True)
-    async def remove_server_role(self, ctx, *, role):
-        c = await self.bot.servers.execute('SELECT server FROM systems WHERE guild_id = :guild_id', {'guild_id':ctx.guild.id})
-        data = await c.fetchone()
-        server = data[0]
-        if server == 1:
-
-            role = disnake.utils.get(ctx.guild.roles, name = role)
-            await role.delete()
-            await ctx.send('The role has been deleted from the server.')
-        else:
-            await ctx.send('Your server admins have disabled this system.')
-
-
-
-
-    
-
-
-
-
-
-
-
-
-
-    @commands.command(
-        aliases = ['addchannel', 'ac'],
-        help = 'Adds a channel to the server. When using, If you only create a channel, pass the channel name (with dashes between each word) If you are adding to a category, pass [Channel-name], [Category Name]')
-    @commands.has_permissions(manage_channels = True)
-    async def add_channel(self, ctx, *, arg):
-        c = await self.bot.servers.execute('SELECT server FROM systems WHERE guild_id = :guild_id', {'guild_id':ctx.guild.id})
-        data = await c.fetchone()
-        server = data[0]
-        if server == 1:
-
-            if ',' in arg:
-                channelName, category = arg.split(', ')
-                category = disnake.utils.get(ctx.guild.categories, name = category)
-
-            else:
-                channelName = arg
-                category = None
-
-            channel = await ctx.guild.create_text_channel(channelName, category = category)
-
-
-            if category is None:
-                await ctx.send('Text channel {} created.'.format(channel.mention))
-            else:
-                await ctx.send('Text channel {} created under the category {}.'.format(channel.mention, category.mention))
-        else:
-            await ctx.send('Your server admins have disabled this system.')
-    @add_channel.error
-    async def ac_error(self, ctx, error):
-        if isinstance(error, commands.MissingPermissions):
-            await ctx.send('You dont have permission to do this.')
-        if isinstance(error, commands.ChannelNotFound):
-            await ctx.send('When you use this command, *Split the channel name and the category with a comma and a space with the channel name before the comma and the category after the space.\nIf there is no category dont add a comma.*')
-        if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send('You are missing the name of the channel.')
+    async def add_member_role(
+        self,
+        inter:disnake.ApplicationCommandInteraction,
+        member:disnake.Member=Param(
+            name = 'member',
+            description='member to add role to'
+        ),
+        role:disnake.Role=Param(
+            name = 'role',
+            description='Role to give'
+        )):
         
+        c = await self.bot.servers.execute('SELECT server FROM systems WHERE guild_id = :guild_id', {'guild_id':inter.guild.id})
+        data = await c.fetchone()
+        server = data[0]
+        if server == 1:
+            if role != disnake.Role:
+                try:
+                    role = disnake.utils.get(inter.guild.roles, name=role)
+                    await member.add_roles(role)
+                    await inter.response.send_message('Added the role to {}.'.format(member.display_name))
+                except:
+                    await inter.response.send_message("This role doesn't exist. Try Again.")
+                    return
+            else:
+                await member.add_roles(role)
+                await inter.response.send_message('Added the role to {}.'.format(member.display_name))
+        else:
+            await inter.response.send_message('Your server admins have disabled this system.')
+    
+    
+
+
+
+
+
+
+
+
+    @commands.slash_command(name='remove-member-role')
+    @commands.has_permissions(manage_roles = True)
+    async def remove_member_role(
+        self,
+        inter:disnake.ApplicationCommandInteraction,
+        member:disnake.Member=Param(
+            name = 'member',
+            description='member to remove a role from'
+        ),
+        role:disnake.Role = Param(
+            name='role',
+            description='role to remove'
+        )):
+        c = await self.bot.servers.execute('SELECT server FROM systems WHERE guild_id = :guild_id', {'guild_id':inter.guild.id})
+        data = await c.fetchone()
+        server = data[0]
+        if server == 1:
+            if role != disnake.Role:
+                try:
+
+                    role = disnake.utils.get(inter.guild.roles, name=role)
+                    await member.remove_roles(role)
+                    await inter.response.send_message('Role removed from {}'.format(member.display_name))
+                
+                except:
+                    await inter.response.send_message("This role doesn't exit")
+                    return
+
+
+            else:
+                await member.remove_roles(role)
+                await inter.response.send_message('Role removed from {}'.format(member.display_name))
+
+
+
+
+        else:
+            await inter.response.send_message('Your server admins have disabled this system.')
+
+
+
+
+
+
+
+
+
+
+
+
+
+    @commands.slash_command(name='add-server-role')
+    @commands.has_permissions(manage_roles = True)
+    async def add_server_role(
+        self,
+        inter:disnake.ApplicationCommandInteraction,
+        role:str=Param(
+            name='role',
+            description='name of role to add'
+        )):
+        c = await self.bot.servers.execute('SELECT server FROM systems WHERE guild_id = :guild_id', {'guild_id':inter.guild.id})
+        data = await c.fetchone()
+        server = data[0]
+        if server == 1:
+
+            role = await inter.guild.create_role(name = role)        
+            await inter.response.send_message("{} role successfully created. Use `a'amr` to add the role to someone.".format(role.mention))
+        else:
+            await inter.response.send_message('Your server admins have disabled this system.')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    @commands.slash_command(name='remove-server-role')
+    @commands.has_permissions(manage_roles = True)
+    async def remove_server_role(
+        self,
+        inter:disnake.ApplicationCommandInteraction,
+        role:disnake.Role=Param(
+            name='role',
+            description='role to remove'
+        )):
+        c = await self.bot.servers.execute('SELECT server FROM systems WHERE guild_id = :guild_id', {'guild_id':inter.guild.id})
+        data = await c.fetchone()
+        server = data[0]
+        if server == 1:
+            if role != disnake.Role:
+
+
+                try:
+                    role = disnake.utils.get(inter.guild.roles, name = role)
+                    await role.delete()
+                    await inter.response.send_message('The role has been deleted from the server.')
+                except:
+                    inter.response.send_message("This role doesn't Exist")
+                    return
+
+            else:
+                await role.delete()
+                await inter.response.send_message('The role has been deleted from the server.')
+        else:
+            await inter.response.send_message('Your server admins have disabled this system.')
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+    @commands.slash_command(name='add-channel')
+    @commands.has_permissions(manage_channels = True)
+    async def add_channel(
+        self,
+        inter:disnake.ApplicationCommandInteraction,
+        channel:str=Param(
+            name='channel-name',
+            description='Name of new channel'
+
+        ),
+        category:str=Param(
+            name='category-name',
+            description='Category to add the channel to.'
+        )):
+        c = await self.bot.servers.execute('SELECT server FROM systems WHERE guild_id = :guild_id', {'guild_id':inter.guild.id})
+        data = await c.fetchone()
+        server = data[0]
+        if server == 1:
+
+            check = disnake.utils.get(inter.guild.categories, name=category)
+            if check is None:
+                await inter.response.send_message("The category provided doesn't exist. Would you like to make the channel still?", view = yesNo(channel))
+            else:
+                channel = await inter.guild.create_text_channel(name = channel, category=check)
+                await channel.send(f'{inter.author.mention} Channel Created!')
+        else:
+            await inter.response.send_message('Your server admins have disabled this system.')
+    @add_channel.error
+    async def ac_error(self, inter, error):
+        if isinstance(error, commands.MissingPermissions):
+            await inter.response.send_message('You dont have permission to do thisresponse.send_message')
 
 
 
@@ -206,28 +238,29 @@ class Server(commands.Cog):
 
 
            
-    @commands.command(
-        aliases = ['acat'],
-        help = 'Adds a category to this server.')
+    @commands.slash_command(name = 'add-category')
     @commands.has_permissions(manage_channels = True)
-    async def add_category(self, ctx, *, name):
-        c = await self.bot.servers.execute('SELECT server FROM systems WHERE guild_id = :guild_id', {'guild_id':ctx.guild.id})
+    async def add_category(
+        self,
+        inter:disnake.ApplicationCommandInteraction,
+        name:str=Param(name = 'category-name', description='name of the category to create')):
+        c = await self.bot.servers.execute('SELECT server FROM systems WHERE guild_id = :guild_id', {'guild_id':inter.guild.id})
         data = await c.fetchone()
         server = data[0]
         if server == 1:
 
-            cat = await ctx.guild.create_category(name = name)
-            await ctx.send('Category {} added.'.format(cat.mention))
+            cat = await inter.guild.create_category(name = name)
+            await inter.response.send_message('Category {} added.'.format(cat.mention))
+
         else:
-            await ctx.send('Your server admins have disabled this system.')
+
+            await inter.response.send_message('Your server admins have disabled this system.')
 
 
     @add_category.error
-    async def acat_error(self, ctx, error):
+    async def acat_error(self, inter, error):
         if isinstance(error, commands.MissingPermissions):
-            await ctx.send('You dont have permission to do this.')
-        if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send('You forgot to tell me the name of the category.')
+            await inter.channel.send('You dont have permission to do this.')
         
 
 
@@ -246,37 +279,34 @@ class Server(commands.Cog):
 
 
     
-    @commands.command(
-        aliases = ['dcat'],
-        help = 'Deletes a category from this server.')
+    @commands.slash_command(name = 'delete-category')
     @commands.has_permissions(manage_channels = True)
-    async def delete_category(self, ctx, *, name):
-        c = await self.bot.servers.execute('SELECT server FROM systems WHERE guild_id = :guild_id', {'guild_id':ctx.guild.id})
+    async def delete_category(
+        self,
+        inter:disnake.ApplicationCommandInteraction,
+        name:str=Param(name='category-name', description='name of category to remove (must be typed exactly)')):
+        c = await self.bot.servers.execute('SELECT server FROM systems WHERE guild_id = :guild_id', {'guild_id':inter.guild.id})
         data = await c.fetchone()
         server = data[0]
         if server == 1:
 
-            cat = disnake.utils.get(ctx.guild.categories, name = name)
+            cat = disnake.utils.get(inter.guild.categories, name = name)
             await cat.delete()
-            await ctx.send('Category deleted.')
+            await inter.response.send_message('Category deleted.')
         else:
-            await ctx.send('Your server admins have disabled this system.')
+            await inter.response.send_message('Your server admins have disabled this system.')
 
 
 
 
 
     @delete_category.error
-    async def dcat_error(self, ctx, error):
+    async def dcat_error(self, inter, error):
         if isinstance(error, commands.MissingPermissions):
-            await ctx.send('You dont have permission to do this.')
-        if isinstance(error, commands.MissingRequiredArgument):
-            
-            await ctx.send('You forgot to tell me the name of the category.')
+            await inter.channel.send('You dont have permission to do this.')
         if isinstance(error, commands.CommandInvokeError):
-            await ctx.send('This name does not exist in this server. Remember to type it exactly.')
-        else:
-            traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+            await inter.channel.send('This name does not exist in this server. Remember to type it exactly.')
+
     
 
 
@@ -295,48 +325,47 @@ class Server(commands.Cog):
 
 
 
-    @commands.command(
-        aliases = ['dc'],
-        help = 'Deletes a channel from this server.')
+    @commands.slash_command(name='delete-channel')
     @commands.has_permissions(manage_channels = True)
-    async def delete_channel(self, ctx, *, name):
-        c = await self.bot.servers.execute('SELECT server FROM systems WHERE guild_id = :guild_id', {'guild_id':ctx.guild.id})
+    async def delete_channel(
+        self,
+        inter:disnake.ApplicationCommandInteraction,
+        name:str=Param(name='channel-name', description='Name of channel to remove (must be spelled exactly)')):
+        c = await self.bot.servers.execute('SELECT server FROM systems WHERE guild_id = :guild_id', {'guild_id':inter.guild.id})
         data = await c.fetchone()
         server = data[0]
         if server == 1:
-
-            chan = disnake.utils.get(ctx.guild.channels, name = name)
+            
+            chan = disnake.utils.get(inter.guild.channels, name = name)
+            if chan is None:
+                await inter.response.send_message("This channel doesn't exist")
+                return
             await chan.delete()
-            await ctx.send('Channel deleted.')
+            await inter.response.send_message('Channel deleted.')
         else:
-            await ctx.send('Your server admins have disabled this system.')
+            await inter.response.send_message('Your server admins have disabled this system.')
 
 
     @delete_channel.error
-    async def dc_error(self, ctx, error):
+    async def dc_error(self, inter, error):
         if isinstance(error, commands.MissingPermissions):
-            await ctx.send('You dont have permission to do this.')
-        if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send('You forgot to tell me the name of the channel.')
-        if isinstance(error, AttributeError):
-            await ctx.send('This channel does not exist. You must type it exactly as its named.')
-        else:
-            traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
-    
+            await inter.channel.send('You dont have permission to do this.')
 
 
-    @commands.command(
-        help = 'Clears messages from a channel.'
-    )
+
+    @commands.slash_command()
     @commands.cooldown(rate = 1, per = 5.0)
     @commands.has_permissions(manage_messages = True)
-    async def purge(self, ctx, amount = 5):
+    async def purge(
+        self,
+        inter:disnake.ApplicationCommandInteraction,
+        amount:str = Param(5, name='amount', description='Amount of messages to purge (defaults to 5)')):
         if amount <= 25:
 
-            await ctx.message.delete()
-            await ctx.channel.purge(limit = amount)
+            await inter.message.delete()
+            await inter.channel.purge(limit = amount)
         else:
-            await ctx.send('The maximum amount of messages you can purge is 25!')
+            await inter.response.send_message('The maximum amount of messages you can purge is 25!')
 
 
 
