@@ -10,7 +10,7 @@ import postbin
 
 
 
-os.chdir('C:\\Users\\justi\\Onedrive\\Documents\\Acrylic-old')
+os.chdir('C:\\Users\\justi\\Onedrive\\Documents\\Acrylic')
 
 bot = commands.Bot(command_prefix="a'" ,intents = disnake.Intents.all(), activity=disnake.Streaming(name = "a'help", url='https://www.twitch.tv/Acrylic'))
 
@@ -90,9 +90,12 @@ async def on_command_error(ctx, error):
    
 
 
-@bot.command(guild_ids = bot.test_guild)
-async def test(ctx):
-    await ctx.send("Slash command go brrr")
+@bot.slash_command(guild_ids = bot.test_guild)
+@commands.is_owner()
+async def test(inter:disnake.ApplicationCommandInteraction):
+    for command in bot.application_commands:
+        print(f'Command name: {command.name}\nCommand Description: {command.description}\n')
+    inter.response.send_message("Completed")
 
 
 async def db_schema(*tables):
