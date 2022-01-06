@@ -1,7 +1,6 @@
 import disnake
 from disnake.ext import commands
 import os
-import asyncio
 import asqlite
 import traceback
 import sys
@@ -95,7 +94,7 @@ async def on_command_error(ctx, error):
 async def test(inter:disnake.ApplicationCommandInteraction):
     for command in bot.application_commands:
         print(f'Command name: {command.name}\nCommand Description: {command.description}\n')
-    inter.response.send_message("Completed")
+    await inter.response.send_message("Completed")
 
 
 async def db_schema(*tables):
