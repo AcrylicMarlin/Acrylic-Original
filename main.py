@@ -92,9 +92,13 @@ async def on_command_error(ctx, error):
 @bot.slash_command(guild_ids = bot.test_guild)
 @commands.is_owner()
 async def test(inter:disnake.ApplicationCommandInteraction):
+    slash = {}
     for command in bot.application_commands:
-        print(f'Command name: {command.name}\nCommand Description: {command.description}\n')
-    await inter.response.send_message("Completed")
+        slash[command.body.name] = {
+            'Cog' : command.cog,
+            'Desc' : command.body.description}
+    print(slash)
+    inter.response.send_message('Completed')
 
 
 async def db_schema(*tables):
