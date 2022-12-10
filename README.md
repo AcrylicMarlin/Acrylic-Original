@@ -6,4 +6,6 @@ Acrylic is an Multi purpose bot. It has Moderation, Leveling, AFK, and other ext
 
 This has been a long project for me and I have learned a lot from it. I have even made a few friends along the way.
 
+That ^ was written almost a year ago, today I will be finally rewriting Acrylic. He will be great, one of the best even.
+
 

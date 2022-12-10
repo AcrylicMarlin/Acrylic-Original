@@ -5,3 +5,5 @@ database.database
 TOKEN.txt
 desktop.ini
 SetAside
+.env
+.gitignore
